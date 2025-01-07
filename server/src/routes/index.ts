@@ -9,7 +9,7 @@ import { z } from 'zod'
 
 export async function routes(app: FastifyTypedInstance) {
     app.post(
-        '/products/search',
+        '/api/products/search',
         {
             schema: {
                 tags: ['products'],
@@ -31,7 +31,7 @@ export async function routes(app: FastifyTypedInstance) {
     )
 
     app.post(
-        '/products/stream-search',
+        '/api/products/stream-search',
         {
             schema: {
                 tags: ['products'],

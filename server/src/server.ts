@@ -42,7 +42,7 @@ app.register(fastifySwaggerUi, {
 
 app.register(routes)
 
-app.get('/', async () => {
+app.get('/api', async () => {
     return { ok: true, startedAt }
 })
 
