@@ -1,0 +1,5 @@
+# local directories
+*.local/
+
+# local files
+*.local.*
