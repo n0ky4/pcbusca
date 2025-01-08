@@ -431,5 +431,3 @@ export async function pichau(query: string, settings?: PaginationInput) {
         products,
     }
 }
-
-pichau('rtx 3080', { page: 1, pageLimit: 10 }).catch(console.error)

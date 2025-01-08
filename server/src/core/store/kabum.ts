@@ -128,5 +128,3 @@ export async function kabum(query: string, settings?: PaginationInput): Promise<
         products,
     }
 }
-
-kabum('rtx 3080', { page: 1, pageLimit: 10 })
