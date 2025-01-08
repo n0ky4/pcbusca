@@ -1,4 +1,6 @@
 import { searchAll, searchEmitter } from '@/core/search.js'
+import { streamSimulator } from '@/example'
+import { log } from '@/log'
 import {
     SearchResult,
     searchResultSchema,
@@ -9,7 +11,7 @@ import { z } from 'zod'
 
 export async function routes(app: FastifyTypedInstance) {
     app.post(
-        '/api/products/search',
+        '/products/search',
         {
             schema: {
                 tags: ['products'],
@@ -30,13 +32,19 @@ export async function routes(app: FastifyTypedInstance) {
         }
     )
 
+    app.get('/foobar', (req, reply) => {
+        console.log(reply.getHeaders())
+        reply.send({ ok: true })
+    })
+
     app.post(
-        '/api/products/stream-search',
+        '/products/stream-search',
         {
             schema: {
                 tags: ['products'],
                 description: 'Stream search for products',
                 body: z.object({
+                    test: z.boolean().default(false),
                     query: z.string().max(100).min(3),
                     stores: z.array(storeSchema).default(['kabum', 'pichau', 'terabyte']),
                 }),
@@ -46,31 +54,40 @@ export async function routes(app: FastifyTypedInstance) {
             },
         },
         async (req, reply) => {
-            const emitter = searchEmitter(req.body.query, { stores: req.body.stores })
-            let ended = false
+            // content type: text/event-stream
+            reply.raw.setHeader('Content-Type', 'text/event-stream')
+            reply.raw.setHeader('Cache-Control', 'no-cache')
+            reply.raw.setHeader('Connection', 'keep-alive')
+
+            // idk why cors isn't working, so i'm setting it manually
+            reply.raw.setHeader('Access-Control-Allow-Origin', '*')
+
+            const emitter = req.body.test
+                ? streamSimulator()
+                : searchEmitter(req.body.query, { stores: req.body.stores })
 
             emitter.on('start', () => {
-                reply.raw.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' })
+                // reply.send(JSON.stringify({ msg: 'start' }) + '\n')
                 reply.raw.write(JSON.stringify({ msg: 'start' }) + '\n')
             })
 
             emitter.on('data', (data: SearchResult) => {
-                if (ended) return
+                // reply.send(JSON.stringify(data) + '\n')
                 reply.raw.write(JSON.stringify(data) + '\n')
             })
 
             emitter.on('end', () => {
-                if (ended) return
-                ended = true
+                // reply.send(JSON.stringify({ msg: 'end' }) + '\n')
+                // reply.raw.end()
                 reply.raw.write(JSON.stringify({ msg: 'end' }) + '\n')
                 reply.raw.end()
             })
 
             emitter.on('error', (err) => {
-                if (ended) return
-                ended = true
+                log.error('stream error')
                 console.error(err)
-                reply.raw.write(JSON.stringify({ msg: 'error', error: err.message }) + '\n')
+
+                reply.raw.write(JSON.stringify({ msg: 'error' }) + '\n')
                 reply.raw.end()
             })
 

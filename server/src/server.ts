@@ -1,5 +1,5 @@
 import { fastifyCors } from '@fastify/cors'
-import { fastifyHelmet } from '@fastify/helmet'
+import fastifyHelmet from '@fastify/helmet'
 import { fastifySwagger } from '@fastify/swagger'
 import { fastifySwaggerUi } from '@fastify/swagger-ui'
 import 'dotenv/config'
@@ -24,8 +24,9 @@ const app = fastify({
 app.setValidatorCompiler(validatorCompiler)
 app.setSerializerCompiler(serializerCompiler)
 
-app.register(fastifyCors, { origin: '*' })
 app.register(fastifyHelmet)
+app.register(fastifyCors, { origin: '*' })
+
 app.register(fastifySwagger, {
     openapi: {
         info: {
@@ -42,7 +43,7 @@ app.register(fastifySwaggerUi, {
 
 app.register(routes)
 
-app.get('/api', async () => {
+app.get('/', async () => {
     return { ok: true, startedAt }
 })
 

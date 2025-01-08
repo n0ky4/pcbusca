@@ -33,11 +33,6 @@ export function searchEmitter(query: string, settings: SearchAllSettingsInput) {
     const em = new EventEmitter() as SearchEmitter
     let running = false
 
-    // events:
-    // - data: { store: Store, data: Response }
-    // - end
-    // - error
-
     em.start = () => {
         if (running) {
             log.warn('search already running')
