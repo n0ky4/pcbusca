@@ -3,6 +3,7 @@ import { TerabyteError } from '@/errors.js'
 import { log, t, te } from '@/log.js'
 import { Item, Meta, Response } from '@/types/index.js'
 import * as cheerio from 'cheerio'
+import { DEFAULT_PAGE_LIMIT } from './../const'
 
 const requestMaker = (query: string, page: number) => {
     return {
@@ -194,6 +195,6 @@ export async function terabyte(query: string, page?: number): Promise<Response> 
 
     return {
         meta,
-        products,
+        products: products.slice(0, DEFAULT_PAGE_LIMIT),
     }
 }
