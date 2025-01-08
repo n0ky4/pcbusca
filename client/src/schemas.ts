@@ -22,6 +22,7 @@ export const itemSchema = z.object({
         xl: z.string().optional(),
     }),
 })
+export type Item = z.infer<typeof itemSchema>
 
 export const storeSchema = z.union([
     z.literal('kabum'),
@@ -49,5 +50,4 @@ export const searchResultSchema = z.object({
     store: storeSchema,
     data: responseSchema.nullable(),
 })
-
 export type SearchResult = z.infer<typeof searchResultSchema>
