@@ -2,6 +2,7 @@
 import { GridItem } from '@/components/GridItem'
 import { Header } from '@/components/Header'
 import { NotFound } from '@/components/NotFound'
+import { TopBar } from '@/components/TopBar'
 import { cleanTitle } from '@/lib/format'
 import { LABELS } from '@/lib/labels'
 import { streamSearch } from '@/lib/req'
@@ -92,6 +93,7 @@ export default function Home() {
 
     return (
         <>
+            <TopBar />
             <Header
                 handleSubmit={handleSubmit}
                 inputChange={inputChange}
