@@ -1,26 +1,41 @@
-import { SavedSearch, savedSearch } from '@/lib/storage'
-import { useMemo, useState } from 'react'
+import { useSettings } from '@/contexts/settings/SettingsContext'
+import { PropsWithChildren, useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
+import { Button } from './Button'
+import { Checkbox } from './Checkbox'
 import { Modal } from './Modal'
 
 interface SettingsModalProps {
     show: boolean
     onClose: () => void
-    savedSearches: SavedSearch[]
-    setSavedSearches: (searches: SavedSearch[]) => void
 }
 
-export function SettingsModal({
-    show,
-    onClose,
-    savedSearches,
-    setSavedSearches,
-}: SettingsModalProps) {
+interface SettingsItemProps extends PropsWithChildren {
+    title: string
+    description?: string
+}
+
+function SettingsItem({ title, description, children }: SettingsItemProps) {
+    return (
+        <div className='flex flex-col gap-2'>
+            <div>
+                <h3 className='text-lg font-bold'>{title}</h3>
+                {description && <p className='text-slate-500'>{description}</p>}
+            </div>
+            {children}
+        </div>
+    )
+}
+
+export function SettingsModal({ show, onClose }: SettingsModalProps) {
+    const { settings, savedSearch } = useSettings()
+    const { savedSearches } = settings
+
     const [input, setInput] = useState('')
 
     const canAdd = useMemo(
         () =>
-            !savedSearches.some((s) => s.search === input) &&
+            !savedSearches.some((s) => s.query === input) &&
             input.length >= 3 &&
             savedSearches.length < 5,
         [savedSearches, input]
@@ -28,27 +43,26 @@ export function SettingsModal({
 
     const onAdd = () => {
         if (!canAdd) return
-        setSavedSearches(savedSearch.add(input))
+        savedSearch.add(input)
         setInput('')
     }
 
-    const remove = (search: string) => setSavedSearches(savedSearch.remove(search))
+    const remove = (search: string) => savedSearch.remove(search)
+
+    const [enabled, setEnabled] = useState(false)
+    const [keepHistory, setKeepHistory] = useState(true)
 
     return (
         <Modal show={show} onClose={onClose} title='Configurações'>
-            <div className='flex flex-col gap-2'>
-                <div>
-                    <h3 className='text-lg font-bold'>Pesquisas salvas</h3>
-                    <p className='text-slate-500'>
-                        São as pesquisas que ficarão abaixo da barra de pesquisa (
-                        {savedSearches.length}/5)
-                    </p>
-                </div>
+            <SettingsItem
+                title='Pesquisas salvas'
+                description={`São as pesquisas que ficarão abaixo da barra de pesquisa (${savedSearches.length}/5)`}
+            >
                 {savedSearches.length > 0 && (
                     <div className='pb-4 pt-2'>
-                        {savedSearches.map(({ search, id }) => (
+                        {savedSearches.map(({ query, id }) => (
                             <div key={id} className='flex items-center justify-between'>
-                                <span>{search}</span>
+                                <span>{query}</span>
                                 <button
                                     className='text-sm hover:underline'
                                     onClick={() => remove(id)}
@@ -77,23 +91,19 @@ export function SettingsModal({
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                     />
-                    <button
-                        className={twMerge(
-                            'transition-all ease-out duration-300',
-                            'bg-teal-300 text-slate-900 font-medium rounded-md px-2 py-1',
-                            'outline-none focus:ring-2',
-                            'enabled:hover:bg-teal-500 focus:ring-teal-100',
-                            'disabled:opacity-50 disabled:cursor-not-allowed',
-                            'select-none'
-                        )}
-                        onClick={onAdd}
-                        disabled={!canAdd}
-                        type='submit'
-                    >
+                    <Button onClick={onAdd} disabled={!canAdd}>
                         Adicionar
-                    </button>
+                    </Button>
                 </form>
-            </div>
+            </SettingsItem>
+            <SettingsItem title='Histórico'>
+                <div className='flex flex-wrap items-center justify-between gap-4'>
+                    <Checkbox enabled={keepHistory} setEnabled={setKeepHistory}>
+                        Ativar histórico
+                    </Checkbox>
+                    <Button theme='ghost'>Limpar histórico</Button>
+                </div>
+            </SettingsItem>
         </Modal>
     )
 }

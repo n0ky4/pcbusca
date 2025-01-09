@@ -4,12 +4,12 @@ import { Header } from '@/components/Header'
 import { NotFound } from '@/components/NotFound'
 import { SettingsModal } from '@/components/SettingsModal'
 import { TopBar } from '@/components/TopBar'
+import { useSettings } from '@/contexts/settings/SettingsContext'
 import { cleanTitle } from '@/lib/format'
 import { LABELS } from '@/lib/labels'
 import { streamSearch } from '@/lib/req'
-import { savedSearch, SavedSearch } from '@/lib/storage'
 import { SearchResult } from '@/schemas'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 const Reais = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -22,11 +22,8 @@ export default function Home() {
     const [result, setResults] = useState<SearchResult[]>([])
     const [loading, setLoading] = useState(false)
     const [showSettingsModal, setShowSettingsModal] = useState(false)
-    const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([])
 
-    useEffect(() => {
-        setSavedSearches(savedSearch.get())
-    }, [])
+    const { settings, setSettings } = useSettings()
 
     const handleSearch = async (_query: string) => {
         if (!_query || loading) return
@@ -100,12 +97,7 @@ export default function Home() {
 
     return (
         <>
-            <SettingsModal
-                show={showSettingsModal}
-                onClose={() => setShowSettingsModal(false)}
-                savedSearches={savedSearches}
-                setSavedSearches={setSavedSearches}
-            />
+            <SettingsModal show={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
             <TopBar onSettingsClick={openSettings} />
             <Header
                 handleSearch={handleSearch}
@@ -114,7 +106,7 @@ export default function Home() {
                 query={query}
                 searched={searched}
                 reset={reset}
-                savedSearches={savedSearches}
+                savedSearches={settings.savedSearches}
             />
             <main className='max-w-screen-lg w-full mx-auto p-4 pb-48 flex flex-col gap-8'>
                 {empty && <NotFound />}

@@ -31,6 +31,7 @@ export const storeSchema = z.union([
     // z.literal('amazon'),
     // z.literal('mercadolivre'),
 ])
+export type Store = z.infer<typeof storeSchema>
 
 export const metaSchema = z.object({
     store: storeSchema,

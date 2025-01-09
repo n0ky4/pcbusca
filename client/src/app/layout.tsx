@@ -1,3 +1,4 @@
+import { SettingsContextProvider } from '@/contexts/settings/SettingsContextProvider'
 import '@/styles/globals.css'
 import type { Metadata } from 'next'
 import { Rubik } from 'next/font/google'
@@ -19,7 +20,7 @@ export default function RootLayout({
     return (
         <html lang='pt-BR'>
             <body className={twMerge(font.className, 'antialiased', 'text-white bg-slate-950')}>
-                {children}
+                <SettingsContextProvider>{children}</SettingsContextProvider>
             </body>
         </html>
     )
