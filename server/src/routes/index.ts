@@ -32,11 +32,6 @@ export async function routes(app: FastifyTypedInstance) {
         }
     )
 
-    app.get('/foobar', (req, reply) => {
-        console.log(reply.getHeaders())
-        reply.send({ ok: true })
-    })
-
     app.post(
         '/products/stream-search',
         {
@@ -62,33 +57,31 @@ export async function routes(app: FastifyTypedInstance) {
             // idk why cors isn't working, so i'm setting it manually
             reply.raw.setHeader('Access-Control-Allow-Origin', '*')
 
+            const separator = '␀'
             const emitter = req.body.test
                 ? streamSimulator()
                 : searchEmitter(req.body.query, { stores: req.body.stores })
 
             emitter.on('start', () => {
-                // reply.send(JSON.stringify({ msg: 'start' }) + '\n')
-                reply.raw.write(JSON.stringify({ msg: 'start' }) + '\n')
+                reply.raw.write(JSON.stringify({ msg: 'start' }) + separator)
             })
 
             emitter.on('data', (data: SearchResult) => {
-                // reply.send(JSON.stringify(data) + '\n')
-                reply.raw.write(JSON.stringify(data) + '\n')
+                reply.raw.write(JSON.stringify(data) + separator)
             })
 
             emitter.on('end', () => {
-                // reply.send(JSON.stringify({ msg: 'end' }) + '\n')
-                // reply.raw.end()
-                reply.raw.write(JSON.stringify({ msg: 'end' }) + '\n')
+                log.info('stream end')
+                reply.raw.write(JSON.stringify({ msg: 'end' }) + separator)
                 reply.raw.end()
             })
 
-            emitter.on('error', (err) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            emitter.on('error', (err: any) => {
+                if (err?.name === 'NOT_FOUND') return
+
                 log.error('stream error')
                 console.error(err)
-
-                reply.raw.write(JSON.stringify({ msg: 'error' }) + '\n')
-                reply.raw.end()
             })
 
             emitter.start()
