@@ -58,7 +58,7 @@ export function searchEmitter(query: string, settings: SearchAllSettingsInput) {
                     em.emit('data', { store, data })
                 })
                 .catch((err: unknown) => {
-                    if (err instanceof Error && err?.name === 'NotFound') {
+                    if (err instanceof Error && err?.message === 'NOT_FOUND') {
                         // se for erro de not found, emitir data null
                         em.emit('data', { store, data: null })
                         return
