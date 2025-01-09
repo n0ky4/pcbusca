@@ -99,26 +99,8 @@ export async function terabyte(query: string, page?: number): Promise<Response> 
     }
     await close()
 
-    const commonMeta = {
-        store: 'terabyte',
-        query,
-        page: realPage,
-        pages: null,
-        pageLimit: null,
-    } as const
-
     const data = rawData.more
-    if (data.includes('Nenhum produto encontrado.')) {
-        log.info('no terabyte products found')
-        te('[terabyte] total')
-        return {
-            meta: {
-                ...commonMeta,
-                items: 0,
-            },
-            products: [],
-        }
-    }
+    if (data.includes('Nenhum produto encontrado.')) throw new TerabyteError('NOT_FOUND')
 
     t('[terabyte] html-parse')
     log.info('parsing terabyte html data')
@@ -186,7 +168,11 @@ export async function terabyte(query: string, page?: number): Promise<Response> 
     te('[terabyte] products-map')
 
     const meta: Meta = {
-        ...commonMeta,
+        store: 'terabyte',
+        query,
+        page: realPage,
+        pages: null,
+        pageLimit: null,
         items: products.length,
     }
     log.info('terabyte meta:', meta)

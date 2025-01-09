@@ -251,7 +251,6 @@ const isDataValid = (checkData: unknown): checkData is PichauResponse => {
         const data = (checkData as any)?.data
         const products = data?.products
         return !!(
-            products?.items?.length &&
             products?.page_info?.current_page != null &&
             products?.page_info?.total_pages != null &&
             products?.total_count != null
@@ -409,6 +408,8 @@ export async function pichau(query: string, settings?: PaginationInput) {
     rawJson = null
 
     te('[pichau] json parse')
+
+    if (!data?.products?.items?.length) throw new PichauError('NOT_FOUND')
 
     const meta: Meta = {
         store: 'pichau',

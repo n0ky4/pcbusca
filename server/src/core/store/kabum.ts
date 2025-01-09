@@ -58,6 +58,8 @@ export async function kabum(query: string, settings?: PaginationInput): Promise<
     })
 
     log.info('kabum response:', res.status)
+
+    if (res.status === 404) throw new KabumError('NOT_FOUND')
     if (!res.ok) throw new KabumError('FETCH_FAILED')
 
     const rawData: unknown = await res.json()
