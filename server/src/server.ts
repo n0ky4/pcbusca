@@ -52,7 +52,7 @@ app.listen({ port: PORT }).then(() => {
     log.info(`server listening on port http://localhost:${PORT}`)
 })
 
-const EXIT_SIGNALS = ['SIGINT', 'SIGTERM', 'uncaughtException', 'unhandledRejection']
+const EXIT_SIGNALS = ['SIGINT', 'SIGTERM']
 let shuttingDown = false
 
 EXIT_SIGNALS.forEach((signal) => {
