@@ -1,0 +1,59 @@
+import { Description, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
+import { X } from 'lucide-react'
+import type { PropsWithChildren } from 'react'
+import { twMerge } from 'tailwind-merge'
+import { RoundButton } from './RoundButton'
+
+interface ModalProps extends PropsWithChildren {
+    show: boolean
+    onClose: () => void
+    title: string
+    description?: string
+}
+
+export function Modal({ show, onClose, children, title, description }: ModalProps) {
+    return (
+        <Dialog open={show} onClose={onClose} className='relative z-50'>
+            <div
+                className={twMerge(
+                    'fixed top-0 left-0 flex bg-black/25',
+                    'w-screen h-screen justify-center p-4 lg:pt-32 pt-16'
+                )}
+            >
+                <DialogPanel
+                    className={twMerge(
+                        'max-w-screen-sm h-fit w-full p-8 rounded-lg',
+                        'bg-slate-900 border border-slate-800',
+                        'flex flex-col gap-4'
+                    )}
+                >
+                    <div>
+                        <div className='flex items-center w-full justify-between'>
+                            <DialogTitle className='font-bold text-3xl'>{title}</DialogTitle>
+                            <RoundButton
+                                theme='ghost'
+                                onClick={onClose}
+                                size='sm'
+                                className='rounded-lg'
+                            >
+                                <X size={22} />
+                            </RoundButton>
+                        </div>
+                        {description && (
+                            <Description className='text-slate-500 mt-2'>{description}</Description>
+                        )}
+                    </div>
+                    {/* <p>
+                        Are you sure you want to deactivate your account? All of your data will be
+                        permanently removed.
+                    </p>
+                    <div className='flex gap-4'>
+                        <button onClick={onClose}>Cancel</button>
+                        <button onClick={onClose}>Deactivate</button>
+                    </div> */}
+                    {children}
+                </DialogPanel>
+            </div>
+        </Dialog>
+    )
+}

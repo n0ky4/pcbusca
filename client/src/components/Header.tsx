@@ -1,4 +1,5 @@
 'use client'
+import { SavedSearch } from '@/lib/storage'
 import { SearchIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
@@ -8,9 +9,10 @@ interface HeaderProps {
     searched: boolean
     query: string
     loading: boolean
-    inputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+    inputChange: (query: string) => void
+    handleSearch: (query: string) => void
     reset: () => void
+    savedSearches: SavedSearch[]
 }
 
 const padding = 96
@@ -20,8 +22,9 @@ export function Header({
     query,
     loading,
     inputChange,
-    handleSubmit,
+    handleSearch,
     reset,
+    savedSearches,
 }: HeaderProps) {
     const headerContentRef = useRef<HTMLDivElement>(null)
     const [headerContentHeight, setHeaderContentHeight] = useState(0)
@@ -43,7 +46,13 @@ export function Header({
                 <button className='w-fit mx-auto font-bold text-6xl' onClick={reset}>
                     <h1>pcbusca</h1>
                 </button>
-                <form className='flex items-center gap-2' onSubmit={handleSubmit}>
+                <form
+                    className='flex items-center gap-2'
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        handleSearch(query)
+                    }}
+                >
                     <input
                         type='text'
                         placeholder='Pesquise uma peça de computador'
@@ -55,12 +64,33 @@ export function Header({
                             'disabled:opacity-75 disabled:cursor-not-allowed'
                         )}
                         value={query}
-                        onChange={inputChange}
+                        onChange={(e) => {
+                            inputChange(e.target.value)
+                        }}
                     />
                     <RoundButton loading={loading}>
                         <SearchIcon size={24} />
                     </RoundButton>
                 </form>
+                {savedSearches?.length > 0 && !searched && (
+                    <div className='w-full text-sm text-slate-500'>
+                        <span className='text-slate-400 font-medium'>Pesquisas salvas:</span>
+                        <div className='w-full flex items-center justify-center gap-4 flex-wrap'>
+                            {savedSearches.map(({ search, id }) => (
+                                <button
+                                    key={id}
+                                    className='hover:underline'
+                                    onClick={() => {
+                                        inputChange(search)
+                                        handleSearch(search)
+                                    }}
+                                >
+                                    {search}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         </header>
     )

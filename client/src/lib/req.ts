@@ -8,7 +8,7 @@ export function streamSearch(query: string) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query }),
+            body: JSON.stringify({ query, test: true }),
         })
 
         if (!res.body) throw new Error('No body')

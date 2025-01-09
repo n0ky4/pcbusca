@@ -9,11 +9,19 @@ const buttonThemes = {
         'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-200 focus:ring-teal-200/50'
     ),
 }
+
+const sizes = {
+    sm: 'min-w-8 min-h-8',
+    md: 'min-w-10 min-h-10',
+}
+
 type Theme = keyof typeof buttonThemes
+type Size = keyof typeof sizes
 
 interface RoundButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     loading?: boolean
     theme?: Theme
+    size?: Size
 }
 
 export function RoundButton({
@@ -22,17 +30,20 @@ export function RoundButton({
     className,
     disabled,
     theme = 'primary',
+    size = 'md',
     ...props
 }: RoundButtonProps) {
     const th = buttonThemes[theme]
+    const sz = sizes[size]
 
     return (
         <button
             className={twMerge(
                 'transition-all ease-out',
                 'flex items-center justify-center leading-none',
-                'min-w-10 min-h-10 rounded-full outline-none focus:ring-2',
+                'rounded-full outline-none focus:ring-2',
                 'disabled:opacity-75 disabled:cursor-not-allowed',
+                sz,
                 th,
                 className
             )}

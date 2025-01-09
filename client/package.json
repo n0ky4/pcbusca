@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
     "@phosphor-icons/react": "^2.1.7",
     "axios": "^1.7.9",
     "lucide-react": "^0.469.0",

@@ -2,12 +2,14 @@
 import { GridItem } from '@/components/GridItem'
 import { Header } from '@/components/Header'
 import { NotFound } from '@/components/NotFound'
+import { SettingsModal } from '@/components/SettingsModal'
 import { TopBar } from '@/components/TopBar'
 import { cleanTitle } from '@/lib/format'
 import { LABELS } from '@/lib/labels'
 import { streamSearch } from '@/lib/req'
+import { savedSearch, SavedSearch } from '@/lib/storage'
 import { SearchResult } from '@/schemas'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 const Reais = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -19,12 +21,17 @@ export default function Home() {
     const [searched, setSearched] = useState(false)
     const [result, setResults] = useState<SearchResult[]>([])
     const [loading, setLoading] = useState(false)
+    const [showSettingsModal, setShowSettingsModal] = useState(false)
+    const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([])
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        if (!query || loading) return
+    useEffect(() => {
+        setSavedSearches(savedSearch.get())
+    }, [])
 
-        const search = streamSearch(query)
+    const handleSearch = async (_query: string) => {
+        if (!_query || loading) return
+
+        const search = streamSearch(_query)
 
         search.on('start', () => {
             setResults([])
@@ -53,8 +60,15 @@ export default function Home() {
         search.start()
     }
 
-    const inputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setQuery(e.target.value)
+    const reset = () => {
+        if (loading) return
+        setQuery('')
+        setSearched(false)
+        setResults([])
+    }
+
+    const openSettings = () => {
+        setShowSettingsModal(true)
     }
 
     const cheapestProducts = useMemo(() => {
@@ -72,15 +86,6 @@ export default function Home() {
         return products.sort((a, b) => a.cash.total_price - b.cash.total_price).slice(0, 10)
     }, [result])
 
-    const reset = () => {
-        if (loading) return
-        setQuery('')
-        setSearched(false)
-        setResults([])
-    }
-
-    const empty = searched && !loading && !result.length
-
     const sorted = useMemo(
         () =>
             result.sort((a, b) => {
@@ -91,16 +96,25 @@ export default function Home() {
         [result]
     )
 
+    const empty = searched && !loading && !result.length
+
     return (
         <>
-            <TopBar />
+            <SettingsModal
+                show={showSettingsModal}
+                onClose={() => setShowSettingsModal(false)}
+                savedSearches={savedSearches}
+                setSavedSearches={setSavedSearches}
+            />
+            <TopBar onSettingsClick={openSettings} />
             <Header
-                handleSubmit={handleSubmit}
-                inputChange={inputChange}
+                handleSearch={handleSearch}
+                inputChange={(_query) => setQuery(_query)}
                 loading={loading}
                 query={query}
                 searched={searched}
                 reset={reset}
+                savedSearches={savedSearches}
             />
             <main className='max-w-screen-lg w-full mx-auto p-4 pb-48 flex flex-col gap-8'>
                 {empty && <NotFound />}
