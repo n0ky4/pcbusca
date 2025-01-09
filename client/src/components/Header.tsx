@@ -1,7 +1,8 @@
 'use client'
-import { LoaderCircle, SearchIcon } from 'lucide-react'
+import { SearchIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
+import { RoundButton } from './RoundButton'
 
 interface HeaderProps {
     searched: boolean
@@ -56,21 +57,9 @@ export function Header({
                         value={query}
                         onChange={inputChange}
                     />
-                    <button
-                        className={twMerge(
-                            'min-w-10 min-h-10 flex items-center justify-center leading-none',
-                            'transition-all ease-out bg-teal-300 rounded-full text-slate-900',
-                            'hover:bg-teal-500 outline-none focus:ring-2 focus:ring-white',
-                            'disabled:opacity-75 disabled:cursor-not-allowed'
-                        )}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <LoaderCircle size={24} className='animate-spin' />
-                        ) : (
-                            <SearchIcon size={24} />
-                        )}
-                    </button>
+                    <RoundButton loading={loading}>
+                        <SearchIcon size={24} />
+                    </RoundButton>
                 </form>
             </div>
         </header>
