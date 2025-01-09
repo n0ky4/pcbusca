@@ -11,7 +11,7 @@ export function GridItem({ product, Reais }: GridItemProps) {
     const title = useMemo(() => truncate(cleanTitle(product.name), 64), [product.name])
 
     return (
-        <div key={product.id} className='flex flex-col gap-2'>
+        <div className='flex flex-col gap-2'>
             <a
                 className='group flex flex-col gap-2 cursor-pointer'
                 title={product.name}

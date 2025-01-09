@@ -8,7 +8,7 @@ export function streamSearch(query: string) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query, test: true }),
+            body: JSON.stringify({ query }),
         })
 
         if (!res.body) throw new Error('No body')
@@ -23,18 +23,25 @@ export function streamSearch(query: string) {
             const text = decoder.decode(value)
             dispatch('raw', text)
 
-            try {
-                const parsed = JSON.parse(text)
+            const parts = text
+                .split('␀')
+                .map((part) => part.trim())
+                .filter((part) => part)
 
-                const msg = parsed?.msg
-                if (msg === 'start') dispatch('start')
-                if (msg === 'end') dispatch('end')
+            for (const part of parts) {
+                try {
+                    const parsed = JSON.parse(part)
 
-                const store = parsed?.store
-                if (store) dispatch('data', parsed)
-            } catch (err) {
-                console.error('Error parsing JSON:', err)
-                console.log('raw:', `"${text}"`)
+                    const msg = parsed?.msg
+                    if (msg === 'start') dispatch('start')
+                    if (msg === 'end') dispatch('end')
+
+                    const store = parsed?.store
+                    if (store) dispatch('data', parsed)
+                } catch (err) {
+                    console.error('Error parsing JSON:', err)
+                    console.log('raw:', `"${text}"`)
+                }
             }
         }
     }

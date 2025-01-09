@@ -9,11 +9,19 @@ interface HeaderProps {
     loading: boolean
     inputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
     handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+    reset: () => void
 }
 
 const padding = 96
 
-export function Header({ searched, query, loading, inputChange, handleSubmit }: HeaderProps) {
+export function Header({
+    searched,
+    query,
+    loading,
+    inputChange,
+    handleSubmit,
+    reset,
+}: HeaderProps) {
     const headerContentRef = useRef<HTMLDivElement>(null)
     const [headerContentHeight, setHeaderContentHeight] = useState(0)
 
@@ -31,7 +39,9 @@ export function Header({ searched, query, loading, inputChange, handleSubmit }: 
             style={{ height: searched ? `${headerContentHeight + padding}px` : '70vh' }}
         >
             <div className='text-center max-w-md w-full flex flex-col gap-8' ref={headerContentRef}>
-                <h1 className='font-bold text-6xl'>pcbusca</h1>
+                <button className='w-fit mx-auto font-bold text-6xl' onClick={reset}>
+                    <h1>pcbusca</h1>
+                </button>
                 <form className='flex items-center gap-2' onSubmit={handleSubmit}>
                     <input
                         type='text'
