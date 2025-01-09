@@ -15,20 +15,28 @@ import { terabyte } from './store/terabyte'
 type SearchEmitter = EventEmitter & {
     start: () => void
 }
+type SearchPromise = { store: Store; promise: Promise<Response> }
 
-const getPromises = (query: string, settings: SearchAllSettingsInput) => {
-    const { page, stores } = searchAllSettingsSchema.parse(settings)
-    const promises: { store: Store; promise: Promise<Response> }[] = []
-
-    if (stores.includes('kabum')) promises.push({ store: 'kabum', promise: kabum(query, { page }) })
-    if (stores.includes('pichau'))
-        promises.push({ store: 'pichau', promise: pichau(query, { page }) })
-    if (stores.includes('terabyte'))
-        promises.push({ store: 'terabyte', promise: terabyte(query, page) })
-
-    return promises
+// handlers para cada tipo de pesquisa
+const storeHandlers: Record<Store, (query: string, page: number) => Promise<Response>> = {
+    kabum: (query, page) => kabum(query, { page }),
+    pichau: (query, page) => pichau(query, { page }),
+    terabyte: (query, page) => terabyte(query, page),
 }
 
+// função que retorna um array com as promises de pesquisa
+const getPromises = (query: string, settings: SearchAllSettingsInput): SearchPromise[] => {
+    const { page, stores } = searchAllSettingsSchema.parse(settings)
+    return stores
+        .filter((store) => storeHandlers[store])
+        .map((store) => ({
+            store,
+            promise: storeHandlers[store](query, page),
+        }))
+}
+
+// função que retorna um EventEmitter para ser utilizado
+// na pesquisa via stream (/stream-search)
 export function searchEmitter(query: string, settings: SearchAllSettingsInput) {
     const em = new EventEmitter() as SearchEmitter
     let running = false
@@ -41,26 +49,35 @@ export function searchEmitter(query: string, settings: SearchAllSettingsInput) {
 
         running = true
 
-        const promises: { store: Store; promise: Promise<Response> }[] = getPromises(
-            query,
-            settings
-        ).map(({ store, promise }) => {
-            promise.then((data) => {
-                em.emit('data', { store, data })
-            })
-            return { store, promise }
+        // trackedPromises são todas as promises
+        // já tratadas para emitir os eventos corretos
+        const trackedPromises = getPromises(query, settings).map(({ store, promise }) => {
+            // setar emit de dados e erro
+            const wrappedPromise = promise
+                .then((data) => {
+                    em.emit('data', { store, data })
+                })
+                .catch((err: unknown) => {
+                    if (err instanceof Error && err?.name === 'NotFound') {
+                        // se for erro de not found, emitir data null
+                        em.emit('data', { store, data: null })
+                        return
+                    }
+                    em.emit('error', { store, err })
+                })
+
+            return wrappedPromise
         })
 
         em.emit('start')
-        Promise.all(promises.map((p) => p.promise))
-            .then(() => {
-                em.emit('end')
-            })
+
+        Promise.all(trackedPromises)
             .catch((err) => {
-                em.emit('error', err)
+                log.error('unexpected error in searchEmitter', { err })
             })
             .finally(() => {
                 running = false
+                em.emit('end')
             })
     }
 
