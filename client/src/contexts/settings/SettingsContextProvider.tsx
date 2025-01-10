@@ -17,12 +17,6 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     const history = useMemo(() => createHistoryHandler(settings, setSettings), [settings])
 
     useEffect(() => {
-        const randomItems = Array.from({ length: 100 }, (_, i) => ({
-            id: i,
-            entry: `Item ${Math.random().toString(36).substring(2, 9)}`,
-        }))
-        randomItems.forEach((item) => history.add(item.entry))
-
         _setSettings(getSettingsFromStorage())
     }, [])
 
