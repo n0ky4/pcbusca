@@ -75,19 +75,17 @@ export default function Home() {
     const openHistory = () => setShowHistoryModal(true)
 
     const cheapestProducts = useMemo(() => {
-        const products = []
-        for (const store of result) {
-            if (!store?.data?.products) continue
-
-            const mapped = store.data.products.map((product) => ({
-                ...product,
-                store: store.store,
-            }))
-
-            products.push(...mapped)
-        }
-        return products.sort((a, b) => a.cash.total_price - b.cash.total_price).slice(0, 10)
-    }, [result])
+        return result
+            .flatMap(
+                (store) =>
+                    store?.data?.products?.map((product) => ({
+                        ...product,
+                        store: store.store,
+                    })) || []
+            )
+            .sort((a, b) => a.cash.total_price - b.cash.total_price)
+            .slice(0, settings.rankingSize)
+    }, [result, settings.rankingSize])
 
     const sorted = useMemo(
         () =>

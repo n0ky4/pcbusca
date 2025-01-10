@@ -1,10 +1,10 @@
 import { useSettings } from '@/contexts/settings/SettingsContext'
 import { PropsWithChildren, useMemo, useState } from 'react'
-import { twMerge } from 'tailwind-merge'
 import { Button } from './Button'
 import { Checkbox } from './Checkbox'
 import { ClearHistoryButton } from './ClearHistoryButton'
 import { Modal } from './Modal'
+import { SettingsInput } from './SettingsInput'
 
 interface SettingsModalProps {
     show: boolean
@@ -78,16 +78,13 @@ export function SettingsModal({ show, onClose }: SettingsModalProps) {
                         onAdd()
                     }}
                 >
-                    <input
+                    <SettingsInput
                         type='text'
                         placeholder='Digite o termo da pesquisa'
-                        className={twMerge(
-                            'transition-all ease-out',
-                            'w-full text-white bg-transparent rounded-md border border-slate-700 px-2 py-1 outline-none',
-                            'focus:ring-2 focus:ring-teal-300'
-                        )}
                         value={input}
-                        onChange={(e) => setInput(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setInput(e.target.value)
+                        }
                     />
                     <Button onClick={onAdd} disabled={!canAdd}>
                         Adicionar
@@ -101,6 +98,17 @@ export function SettingsModal({ show, onClose }: SettingsModalProps) {
                     </Checkbox>
                     <ClearHistoryButton />
                 </div>
+            </SettingsItem>
+            <SettingsItem title='Tamanho do ranking'>
+                <SettingsInput
+                    type='number'
+                    value={settings.rankingSize}
+                    min={1}
+                    placeholder='Digite a quantidade de itens a serem exibidos'
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSettings({ ...settings, rankingSize: Number(e.target.value) || 10 })
+                    }
+                />
             </SettingsItem>
         </Modal>
     )
