@@ -35,7 +35,7 @@ export function SettingsModal({ show, onClose }: SettingsModalProps) {
 
     const canAdd = useMemo(
         () =>
-            !savedSearches.some((s) => s.query === input) &&
+            !savedSearches.some((s) => s.entry === input) &&
             input.length >= 3 &&
             savedSearches.length < 5,
         [savedSearches, input]
@@ -47,9 +47,6 @@ export function SettingsModal({ show, onClose }: SettingsModalProps) {
         setInput('')
     }
 
-    const remove = (search: string) => savedSearch.remove(search)
-
-    const [enabled, setEnabled] = useState(false)
     const [keepHistory, setKeepHistory] = useState(true)
 
     return (
@@ -60,12 +57,12 @@ export function SettingsModal({ show, onClose }: SettingsModalProps) {
             >
                 {savedSearches.length > 0 && (
                     <div className='pb-4 pt-2'>
-                        {savedSearches.map(({ query, id }) => (
+                        {savedSearches.map(({ entry, id }) => (
                             <div key={id} className='flex items-center justify-between'>
-                                <span>{query}</span>
+                                <span>{entry}</span>
                                 <button
                                     className='text-sm hover:underline'
-                                    onClick={() => remove(id)}
+                                    onClick={() => savedSearch.remove(id)}
                                 >
                                     Remover
                                 </button>

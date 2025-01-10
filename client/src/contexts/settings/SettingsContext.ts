@@ -1,21 +1,22 @@
 'use client'
-import { SavedSearchHandler } from '@/lib/storage'
+import { HistoryHandler } from '@/lib/storage/history'
+import { SavedSearchHandler } from '@/lib/storage/savedSearch'
 import { createContext, useContext } from 'react'
 import { storeSchema } from 'shared'
 import { z } from 'zod'
 
-export const savedSearchSchema = z.object({
+export const idItemSchema = z.object({
     id: z.string(),
-    query: z.string(),
+    entry: z.string(),
 })
-export type SavedSearch = z.infer<typeof savedSearchSchema>
+export type IdItem = z.infer<typeof idItemSchema>
 
 export const settingsSchema = z.object({
-    savedSearches: z.array(savedSearchSchema).default([]),
     pageLimit: z.number().default(10),
     rankingSize: z.number().default(10),
     stores: z.array(storeSchema).default(['kabum', 'pichau', 'terabyte']),
-    history: z.array(z.string()).default([]),
+    savedSearches: z.array(idItemSchema).default([]),
+    history: z.array(idItemSchema).default([]),
     historyEnabled: z.boolean().default(true),
 })
 export type Settings = z.infer<typeof settingsSchema>
@@ -24,6 +25,7 @@ export interface SettingsContextType {
     settings: Settings
     setSettings: (settings: Settings) => void
     savedSearch: SavedSearchHandler
+    history: HistoryHandler
 }
 
 export const defaultSettings: Settings = {
@@ -35,10 +37,12 @@ export const defaultSettings: Settings = {
     historyEnabled: true,
 }
 
+const handlerPlaceholder = { get: () => [], add: () => [], remove: () => [] }
 export const SettingsContext = createContext<SettingsContextType>({
     settings: defaultSettings,
     setSettings: () => {},
-    savedSearch: { get: () => [], add: () => [], remove: () => [] },
+    savedSearch: handlerPlaceholder,
+    history: handlerPlaceholder,
 })
 
 export function useSettings() {

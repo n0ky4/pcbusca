@@ -1,31 +1,33 @@
 'use client'
-import {
-    createSavedSearchStorage,
-    getSettingsFromStorage,
-    setSettingsToStorage,
-} from '@/lib/storage'
-import { PropsWithChildren, useEffect, useMemo, useState } from 'react'
+import { createHistoryHandler } from '@/lib/storage/history'
+import { createSavedSearchHandler } from '@/lib/storage/savedSearch'
+import { getSettingsFromStorage, setSettingsToStorage } from '@/lib/storage/settings'
+import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react'
 import { defaultSettings, Settings, SettingsContext } from './SettingsContext'
 
 export function SettingsContextProvider({ children }: PropsWithChildren) {
     const [settings, _setSettings] = useState<Settings>(defaultSettings)
 
-    const setSettings = (settings: Settings) => {
+    const setSettings = useCallback((settings: Settings) => {
         _setSettings(settings)
         setSettingsToStorage(settings)
-    }
+    }, [])
 
-    const savedSearch = useMemo(
-        () => createSavedSearchStorage(settings, setSettings),
-        [settings, setSettings]
-    )
+    const savedSearch = useMemo(() => createSavedSearchHandler(settings, setSettings), [settings])
+    const history = useMemo(() => createHistoryHandler(settings, setSettings), [settings])
 
     useEffect(() => {
+        const randomItems = Array.from({ length: 100 }, (_, i) => ({
+            id: i,
+            entry: `Item ${Math.random().toString(36).substring(2, 9)}`,
+        }))
+        randomItems.forEach((item) => history.add(item.entry))
+
         _setSettings(getSettingsFromStorage())
     }, [])
 
     return (
-        <SettingsContext.Provider value={{ settings, setSettings, savedSearch }}>
+        <SettingsContext.Provider value={{ settings, setSettings, savedSearch, history }}>
             {children}
         </SettingsContext.Provider>
     )

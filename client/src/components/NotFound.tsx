@@ -2,12 +2,13 @@ import { twMerge } from 'tailwind-merge'
 
 interface NotFoundProps {
     center?: boolean
+    customMessage?: string
 }
 
-export function NotFound({ center = true }: NotFoundProps) {
+export function NotFound({ center = true, customMessage }: NotFoundProps) {
     return (
         <p className={twMerge('text-slate-500', center && 'w-full text-center')}>
-            Nenhum resultado encontrado.
+            {customMessage || 'Nenhum resultado encontrado.'}
         </p>
     )
 }

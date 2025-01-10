@@ -1,6 +1,7 @@
 'use client'
 import { GridItem } from '@/components/GridItem'
 import { Header } from '@/components/Header'
+import { HistoryModal } from '@/components/HistoryModal'
 import { NotFound } from '@/components/NotFound'
 import { SettingsModal } from '@/components/SettingsModal'
 import { TopBar } from '@/components/TopBar'
@@ -21,9 +22,11 @@ export default function Home() {
     const [searched, setSearched] = useState(false)
     const [result, setResults] = useState<SearchResult[]>([])
     const [loading, setLoading] = useState(false)
-    const [showSettingsModal, setShowSettingsModal] = useState(false)
 
-    const { settings, setSettings } = useSettings()
+    const [showSettingsModal, setShowSettingsModal] = useState(false)
+    const [showHistoryModal, setShowHistoryModal] = useState(false)
+
+    const { history } = useSettings()
 
     const handleSearch = async (_query: string) => {
         if (!_query || loading) return
@@ -33,6 +36,7 @@ export default function Home() {
         search.on('start', () => {
             setResults([])
             setLoading(true)
+            history.add(_query)
             console.log('start')
         })
 
@@ -64,9 +68,8 @@ export default function Home() {
         setResults([])
     }
 
-    const openSettings = () => {
-        setShowSettingsModal(true)
-    }
+    const openSettings = () => setShowSettingsModal(true)
+    const openHistory = () => setShowHistoryModal(true)
 
     const cheapestProducts = useMemo(() => {
         const products = []
@@ -93,12 +96,13 @@ export default function Home() {
         [result]
     )
 
-    const empty = searched && !loading && !result.length
+    const empty = useMemo(() => searched && !loading && !result.length, [searched, loading, result])
 
     return (
         <>
+            <HistoryModal show={showHistoryModal} onClose={() => setShowHistoryModal(false)} />
             <SettingsModal show={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
-            <TopBar onSettingsClick={openSettings} />
+            <TopBar onSettingsClick={openSettings} onHistoryClick={openHistory} />
             <Header
                 handleSearch={handleSearch}
                 inputChange={(_query) => setQuery(_query)}
