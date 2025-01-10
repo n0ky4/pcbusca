@@ -17,7 +17,7 @@ export const settingsSchema = z.object({
     stores: z.array(storeSchema).default(['kabum', 'pichau', 'terabyte']),
     savedSearches: z.array(idItemSchema).default([]),
     history: z.array(idItemSchema).default([]),
-    historyEnabled: z.boolean().default(true),
+    keepHistory: z.boolean().default(true),
 })
 export type Settings = z.infer<typeof settingsSchema>
 
@@ -34,7 +34,7 @@ export const defaultSettings: Settings = {
     rankingSize: 10,
     stores: ['kabum', 'pichau', 'terabyte'],
     history: [],
-    historyEnabled: true,
+    keepHistory: true,
 }
 
 const handlerPlaceholder = { get: () => [], add: () => [], remove: () => [] }
@@ -42,7 +42,7 @@ export const SettingsContext = createContext<SettingsContextType>({
     settings: defaultSettings,
     setSettings: () => {},
     savedSearch: handlerPlaceholder,
-    history: handlerPlaceholder,
+    history: { ...handlerPlaceholder, clear: () => [] },
 })
 
 export function useSettings() {

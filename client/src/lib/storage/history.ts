@@ -39,6 +39,11 @@ export function createHistoryHandler(
         return filtered
     }
 
-    return { get, add, remove }
+    const clear: () => IdItem[] = () => {
+        setSettings({ ...settings, history: [] })
+        return []
+    }
+
+    return { get, add, remove, clear }
 }
 export type HistoryHandler = ReturnType<typeof createHistoryHandler>

@@ -3,6 +3,7 @@ import { PropsWithChildren, useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Button } from './Button'
 import { Checkbox } from './Checkbox'
+import { ClearHistoryButton } from './ClearHistoryButton'
 import { Modal } from './Modal'
 
 interface SettingsModalProps {
@@ -28,7 +29,7 @@ function SettingsItem({ title, description, children }: SettingsItemProps) {
 }
 
 export function SettingsModal({ show, onClose }: SettingsModalProps) {
-    const { settings, savedSearch } = useSettings()
+    const { settings, setSettings, savedSearch } = useSettings()
     const { savedSearches } = settings
 
     const [input, setInput] = useState('')
@@ -47,7 +48,7 @@ export function SettingsModal({ show, onClose }: SettingsModalProps) {
         setInput('')
     }
 
-    const [keepHistory, setKeepHistory] = useState(true)
+    const toggleKeepHistory = () => setSettings({ ...settings, keepHistory: !settings.keepHistory })
 
     return (
         <Modal show={show} onClose={onClose} title='Configurações'>
@@ -95,10 +96,10 @@ export function SettingsModal({ show, onClose }: SettingsModalProps) {
             </SettingsItem>
             <SettingsItem title='Histórico'>
                 <div className='flex flex-wrap items-center justify-between gap-4'>
-                    <Checkbox enabled={keepHistory} setEnabled={setKeepHistory}>
-                        Ativar histórico
+                    <Checkbox enabled={settings.keepHistory} setEnabled={toggleKeepHistory}>
+                        Manter histórico
                     </Checkbox>
-                    <Button theme='ghost'>Limpar histórico</Button>
+                    <ClearHistoryButton />
                 </div>
             </SettingsItem>
         </Modal>

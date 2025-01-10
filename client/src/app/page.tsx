@@ -26,7 +26,7 @@ export default function Home() {
     const [showSettingsModal, setShowSettingsModal] = useState(false)
     const [showHistoryModal, setShowHistoryModal] = useState(false)
 
-    const { history } = useSettings()
+    const { settings, history } = useSettings()
 
     const onSearch = async (_query: string, changeInput?: boolean) => {
         if (!_query || loading) return
@@ -37,7 +37,9 @@ export default function Home() {
         search.on('start', () => {
             setResults([])
             setLoading(true)
-            history.add(_query)
+
+            if (settings.keepHistory) history.add(_query)
+
             console.log('start')
         })
 

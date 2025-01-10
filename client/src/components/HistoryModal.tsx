@@ -1,4 +1,5 @@
 import { useSettings } from '@/contexts/settings/SettingsContext'
+import { ClearHistoryButton } from './ClearHistoryButton'
 import { Modal } from './Modal'
 import { NotFound } from './NotFound'
 
@@ -24,14 +25,21 @@ export function HistoryModal({ show, onClose, onSearch }: HistoryModalProps) {
             show={show}
             onClose={onClose}
             title='Histórico'
-            description={
-                history.length > 0 ? `Você tem ${history.length} itens no histórico.` : undefined
-            }
+            // description={
+            //     history.length > 0 ? `Você tem ${history.length} itens no histórico.` : undefined
+            // }
         >
             {history.length === 0 ? (
                 <NotFound customMessage='Nenhum histórico encontrado.' />
             ) : (
                 <>
+                    <div className='text-slate-500 flex w-full items-center justify-between'>
+                        <span>
+                            Você tem {history.length} ite{history.length > 1 ? 'ns' : 'm'} no
+                            histórico.
+                        </span>
+                        <ClearHistoryButton />
+                    </div>
                     <div className='max-h-80 overflow-auto'>
                         {reversedHistory.map(({ id, entry }) => (
                             <div key={id} className='pr-1'>
