@@ -1,7 +1,7 @@
 {
-    "name": "pcbusca-api",
-    "version": "1.0.0",
-    "description": "api para buscar produtos em várias lojas",
+    "name": "server",
+    "version": "0.1.0",
+    "description": "api do pcbusca",
     "main": "dist/server.js",
     "scripts": {
         "lint": "eslint .",

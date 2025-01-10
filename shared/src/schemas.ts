@@ -21,20 +21,24 @@ export const itemSchema = z.object({
         total_price: z.number(),
         discount: z.number(),
     }),
-    installment: z.object({
-        total_price: z.number(),
-        max_installments: z.number(),
-        installment_price: z.number(),
-    }),
+    installment: z
+        .object({
+            total_price: z.number().optional(),
+            max_installments: z.number().optional(),
+            installment_price: z.number().optional(),
+        })
+        .optional(),
     stock: z.number().optional(),
     url: z.string(),
-    images: z.object({
-        default: z.string(),
-        sm: z.string().optional(),
-        md: z.string().optional(),
-        lg: z.string().optional(),
-        xl: z.string().optional(),
-    }),
+    images: z
+        .object({
+            default: z.string().optional(),
+            sm: z.string().optional(),
+            md: z.string().optional(),
+            lg: z.string().optional(),
+            xl: z.string().optional(),
+        })
+        .optional(),
 })
 
 export const metaSchema = z.object({

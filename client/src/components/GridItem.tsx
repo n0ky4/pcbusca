@@ -21,7 +21,14 @@ export function GridItem({ product, Reais }: GridItemProps) {
             >
                 <div className='w-full h-48 rounded-lg overflow-hidden'>
                     <div
-                        style={{ backgroundImage: `url(${product.images.default})` }}
+                        style={
+                            product.images?.default
+                                ? { backgroundImage: `url(${product.images.default})` }
+                                : {
+                                      background:
+                                          'linear-gradient(135deg, #f6f6f6 0%, #eaeaea 100%)',
+                                  }
+                        }
                         className='w-full h-48 bg-cover bg-center rounded-lg group-hover:scale-105 transition-transform ease-out duration-200'
                     />
                 </div>
@@ -33,10 +40,12 @@ export function GridItem({ product, Reais }: GridItemProps) {
                 <p className='text-xl font-semibold text-emerald-400 leading-tight'>
                     {Reais.format(product.cash.total_price)}
                 </p>
-                <p className='text-xs text-slate-500 leading-tight'>
-                    {Reais.format(product.installment.total_price)} em até{' '}
-                    {product.installment.max_installments}x
-                </p>
+                {product?.installment?.total_price && product?.installment?.max_installments && (
+                    <p className='text-xs text-slate-500 leading-tight'>
+                        {Reais.format(product.installment.total_price)} em até{' '}
+                        {product.installment.max_installments}x
+                    </p>
+                )}
             </div>
         </div>
     )

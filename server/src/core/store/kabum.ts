@@ -26,6 +26,23 @@ const isDataValid = (data: unknown): data is KabumResponse => {
 
     return false
 }
+
+const getMaxInstallments = (maxInstallment: string): number | undefined => {
+    try {
+        return parseInt(maxInstallment.split('x')[0])
+    } catch {
+        return
+    }
+}
+
+const getInstallmentPrice = (maxInstallment: string): number | undefined => {
+    try {
+        return parseFloat(maxInstallment.split('R$')[1].replace(',', '.'))
+    } catch {
+        return
+    }
+}
+
 /**
  * Pesquisa produtos na Kabum com paginação.
  * @param query Termo de pesquisa.
@@ -106,17 +123,21 @@ export async function kabum(query: string, settings?: PaginationInput): Promise<
                 },
                 installment: {
                     total_price: price,
-                    max_installments: parseInt(max_installment.split('x')[0]),
-                    installment_price: parseFloat(max_installment.split('R$')[1].replace(',', '.')),
+                    max_installments: max_installment
+                        ? getMaxInstallments(max_installment)
+                        : undefined,
+                    installment_price: max_installment
+                        ? getInstallmentPrice(max_installment)
+                        : undefined,
                 },
                 stock,
                 url: `https://www.kabum.com.br/produto/${id}`,
                 images: {
-                    default: images[0],
-                    sm: photos.p[0],
-                    md: photos.m[0],
-                    lg: photos.g[0],
-                    xl: photos.gg[0],
+                    default: images?.[0],
+                    sm: photos?.p?.[0],
+                    md: photos?.m?.[0],
+                    lg: photos?.g?.[0],
+                    xl: photos?.gg?.[0],
                 },
             }
 

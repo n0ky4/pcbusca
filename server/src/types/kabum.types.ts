@@ -131,7 +131,7 @@ export interface Attributes {
     ufs_flash: unknown[]
     featured_product: boolean
     stamps?: Stamps
-    max_installment: string
+    max_installment?: string
     max_installment_prime?: string
 }
 

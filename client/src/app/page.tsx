@@ -153,10 +153,18 @@ export default function Home() {
                                                     {Reais.format(product.cash.total_price)} (
                                                     {product.cash.discount}%)
                                                 </td>
-                                                <td className='text-right'>
-                                                    {Reais.format(product.installment.total_price)}{' '}
-                                                    ({product.installment.max_installments}x)
-                                                </td>
+                                                {product?.installment?.total_price &&
+                                                product?.installment?.max_installments ? (
+                                                    <td className='text-right'>
+                                                        {Reais.format(
+                                                            product.installment.total_price
+                                                        )}{' '}
+                                                        ({product.installment.max_installments}
+                                                        x)
+                                                    </td>
+                                                ) : (
+                                                    <td className='text-right text-slate-500'>-</td>
+                                                )}
                                                 <td className='text-right'>{product.store}</td>
                                             </tr>
                                         ))}

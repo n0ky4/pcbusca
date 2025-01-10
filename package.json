@@ -1,17 +1,20 @@
 {
     "name": "pcbusca",
     "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
     "scripts": {
-        "build": "pnpm --filter client build && pnpm --filter server build && pnpm --filter shared build"
+        "start": "pnpm --filter server start && pnpm --filter client start",
+        "build": "pnpm --filter shared build && pnpm --filter server build && pnpm --filter client build",
+        "build:shared": "pnpm --filter shared build",
+        "dev": "concurrently \"pnpm --filter server dev\" \"pnpm --filter client dev\""
     },
-    "keywords": [],
     "workspaces": [
         "client",
         "server",
         "shared"
     ],
     "author": "nokya",
-    "license": "AGPL-3.0-only"
+    "license": "AGPL-3.0-only",
+    "dependencies": {
+        "concurrently": "^9.1.2"
+    }
 }

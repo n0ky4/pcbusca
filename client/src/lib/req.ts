@@ -1,6 +1,6 @@
 type Event = 'start' | 'end' | 'data' | 'raw'
 export function streamSearch(query: string) {
-    let events: Record<string, any> = {}
+    const events: Record<string, any> = {}
 
     async function request() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/stream-search`, {

@@ -22,7 +22,8 @@ export function Button({ theme = 'primary', children, onClick, className, ...pro
                 'outline-none focus:ring-2',
                 'disabled:opacity-50 disabled:cursor-not-allowed',
                 'select-none',
-                th
+                th,
+                className
             )}
             onClick={onClick}
             {...props}
