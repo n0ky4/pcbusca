@@ -9,9 +9,9 @@ interface HeaderProps {
     searched: boolean
     query: string
     loading: boolean
-    inputChange: (query: string) => void
-    handleSearch: (query: string) => void
-    reset: () => void
+    onInputChange: (query: string) => void
+    onSearch: (query: string, changeInput?: boolean) => void
+    onReset: () => void
 }
 
 const padding = 96
@@ -20,9 +20,9 @@ export function Header({
     searched,
     query,
     loading,
-    inputChange,
-    handleSearch,
-    reset,
+    onInputChange,
+    onSearch,
+    onReset,
 }: HeaderProps) {
     const { settings } = useSettings()
     const savedSearches = settings.savedSearches
@@ -44,14 +44,14 @@ export function Header({
             style={{ height: searched ? `${headerContentHeight + padding}px` : '70vh' }}
         >
             <div className='text-center max-w-md w-full flex flex-col gap-8' ref={headerContentRef}>
-                <button className='w-fit mx-auto font-bold text-6xl' onClick={reset}>
+                <button className='w-fit mx-auto font-bold text-6xl' onClick={onReset}>
                     <h1>pcbusca</h1>
                 </button>
                 <form
                     className='flex items-center gap-2'
                     onSubmit={(e) => {
                         e.preventDefault()
-                        handleSearch(query)
+                        onSearch(query)
                     }}
                 >
                     <input
@@ -66,7 +66,7 @@ export function Header({
                         )}
                         value={query}
                         onChange={(e) => {
-                            inputChange(e.target.value)
+                            onInputChange(e.target.value)
                         }}
                     />
                     <RoundButton loading={loading}>
@@ -77,16 +77,15 @@ export function Header({
                     <div className='w-full text-sm text-slate-500'>
                         <span className='text-slate-400 font-medium'>Pesquisas salvas:</span>
                         <div className='w-full flex items-center justify-center gap-4 flex-wrap'>
-                            {savedSearches.map(({ query, id }) => (
+                            {savedSearches.map(({ entry, id }) => (
                                 <button
                                     key={id}
                                     className='hover:underline'
                                     onClick={() => {
-                                        inputChange(query)
-                                        handleSearch(query)
+                                        onSearch(entry, true)
                                     }}
                                 >
-                                    {query}
+                                    {entry}
                                 </button>
                             ))}
                         </div>

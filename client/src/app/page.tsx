@@ -28,9 +28,10 @@ export default function Home() {
 
     const { history } = useSettings()
 
-    const handleSearch = async (_query: string) => {
+    const onSearch = async (_query: string, changeInput?: boolean) => {
         if (!_query || loading) return
 
+        if (changeInput) setQuery(_query)
         const search = streamSearch(_query)
 
         search.on('start', () => {
@@ -61,7 +62,7 @@ export default function Home() {
         search.start()
     }
 
-    const reset = () => {
+    const onReset = () => {
         if (loading) return
         setQuery('')
         setSearched(false)
@@ -100,16 +101,20 @@ export default function Home() {
 
     return (
         <>
-            <HistoryModal show={showHistoryModal} onClose={() => setShowHistoryModal(false)} />
+            <HistoryModal
+                show={showHistoryModal}
+                onClose={() => setShowHistoryModal(false)}
+                onSearch={onSearch}
+            />
             <SettingsModal show={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
             <TopBar onSettingsClick={openSettings} onHistoryClick={openHistory} />
             <Header
-                handleSearch={handleSearch}
-                inputChange={(_query) => setQuery(_query)}
+                onSearch={onSearch}
+                onInputChange={(_query) => setQuery(_query)}
                 loading={loading}
                 query={query}
                 searched={searched}
-                reset={reset}
+                onReset={onReset}
             />
             <main className='max-w-screen-lg w-full mx-auto p-4 pb-48 flex flex-col gap-8'>
                 {empty && <NotFound />}

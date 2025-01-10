@@ -1,5 +1,4 @@
 import { IdItem, Settings } from '@/contexts/settings/SettingsContext'
-import { getRandomId } from '../common'
 
 // i know this code looks like the savedsearch thingy
 // but this logic is only used twice so it's pointless
@@ -24,7 +23,7 @@ export function createHistoryHandler(
         }
 
         saved.push({
-            id: getRandomId(),
+            id: Date.now().toString(),
             entry,
         })
 
