@@ -5,6 +5,7 @@ import { HistoryModal } from '@/components/modal/HistoryModal'
 import { SettingsModal } from '@/components/modal/SettingsModal'
 import { NotFound } from '@/components/NotFound'
 import { ProductsRanking } from '@/components/ProductsRanking'
+import { t } from '@/components/Toaster'
 import { TopBar } from '@/components/TopBar'
 import { useSettings } from '@/contexts/settings/SettingsContext'
 import { LABELS } from '@/lib/labels'
@@ -45,7 +46,8 @@ export default function Home() {
 
         search.on('data', (data: SearchResult) => {
             if (!data.data?.products) {
-                console.warn(`No products found for "${data.store}"`)
+                // console.warn(`No products found for "${data.store}"`)
+                t.warning(`Nenhum produto encontrado na loja ${LABELS[data.store]}`)
                 return
             }
 

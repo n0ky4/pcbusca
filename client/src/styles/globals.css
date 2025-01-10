@@ -12,3 +12,32 @@
 ::-webkit-scrollbar-thumb {
     @apply bg-slate-500 rounded-full;
 }
+
+/* toaster animations */
+@keyframes enter {
+    0% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+.animate-enter {
+    animation: enter 0.2s ease-out;
+}
+
+@keyframes leave {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+}
+.animate-leave {
+    animation: leave 0.15s ease-in forwards;
+}

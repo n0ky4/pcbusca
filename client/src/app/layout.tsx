@@ -22,7 +22,11 @@ export default function RootLayout({
         <html lang='pt-BR'>
             <body className={twMerge(font.className, 'antialiased', 'text-white bg-slate-950')}>
                 <SettingsContextProvider>{children}</SettingsContextProvider>
-                <Toaster />
+                <Toaster
+                    toastOptions={{
+                        duration: 3000,
+                    }}
+                />
             </body>
         </html>
     )
