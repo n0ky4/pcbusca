@@ -1,13 +1,8 @@
 import { log } from '@/log'
-import {
-    Response,
-    SearchAllSettingsInput,
-    searchAllSettingsSchema,
-    SearchResult,
-    Store,
-} from '@/types'
+import { SearchAllSettingsInput, searchAllSettingsSchema } from '@/types'
 import EventEmitter from 'events'
 import { writeFileSync } from 'fs'
+import { Response, SearchResult, Store } from 'shared'
 import { kabum } from './store/kabum'
 import { pichau } from './store/pichau'
 import { terabyte } from './store/terabyte'

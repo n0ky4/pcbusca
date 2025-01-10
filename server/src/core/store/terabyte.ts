@@ -1,8 +1,8 @@
 import { browserPool } from '@/core/puppeteer.js'
 import { TerabyteError } from '@/errors.js'
 import { log, t, te } from '@/log.js'
-import { Item, Meta, Response } from '@/types/index.js'
 import * as cheerio from 'cheerio'
+import { Item, Meta, Response } from 'shared'
 import { DEFAULT_PAGE_LIMIT } from './../const'
 
 const requestMaker = (query: string, page: number) => {
@@ -166,6 +166,8 @@ export async function terabyte(query: string, page?: number): Promise<Response> 
         .filter((x) => x !== null)
 
     te('[terabyte] products-map')
+
+    if (products.length === 0) throw new TerabyteError('NOT_FOUND')
 
     const meta: Meta = {
         store: 'terabyte',

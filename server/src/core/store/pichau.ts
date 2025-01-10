@@ -2,8 +2,9 @@ import { PICHAU_BASE_URL } from '@/core/const.js'
 import { browserPool } from '@/core/puppeteer.js'
 import { PichauError } from '@/errors.js'
 import { log, t, te } from '@/log.js'
-import { Item, Meta, PaginationInput, paginationSettingsSchema } from '@/types/index.js'
+import { PaginationInput, paginationSettingsSchema } from '@/types/index.js'
 import { PichauItem, PichauResponse } from '@/types/pichau.types'
+import { Item, Meta } from 'shared'
 
 const PICHAU_PAYLOAD = `
 query category($id: Int!, $pageSize: Int!, $onServer: Boolean!, $currentPage: Int!) {

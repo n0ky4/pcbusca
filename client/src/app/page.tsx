@@ -8,8 +8,8 @@ import { useSettings } from '@/contexts/settings/SettingsContext'
 import { cleanTitle } from '@/lib/format'
 import { LABELS } from '@/lib/labels'
 import { streamSearch } from '@/lib/req'
-import { SearchResult } from '@/schemas'
 import { useMemo, useState } from 'react'
+import { SearchResult } from 'shared'
 
 const Reais = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -106,7 +106,6 @@ export default function Home() {
                 query={query}
                 searched={searched}
                 reset={reset}
-                savedSearches={settings.savedSearches}
             />
             <main className='max-w-screen-lg w-full mx-auto p-4 pb-48 flex flex-col gap-8'>
                 {empty && <NotFound />}
@@ -114,74 +113,85 @@ export default function Home() {
                 {!empty && searched && (
                     <>
                         {/* menores preços  */}
-                        <div className='flex flex-col gap-4'>
-                            <h2 className='text-2xl font-bold'>Menores preços</h2>
-                            <table className='w-full table-auto divide-y divide-slate-800'>
-                                <thead>
-                                    <tr>
-                                        <th className='text-left !font-semibold'>Produto</th>
-                                        <th className='text-right !font-semibold'>Preço à vista</th>
-                                        <th className='text-right !font-semibold'>
-                                            Preço parcelado
-                                        </th>
-                                        <th className='text-right !font-semibold'>Loja</th>
-                                    </tr>
-                                </thead>
-                                <tbody className='divide-y divide-slate-800 text-sm text-slate-300'>
-                                    {cheapestProducts.map((product) => (
-                                        <tr key={product.id} className='hover:bg-slate-900'>
-                                            <td className='max-w-md truncate' title={product.name}>
-                                                <a
-                                                    href={product.url}
-                                                    target='_blank'
-                                                    rel='noopener noreferrer'
-                                                    className='hover:underline'
-                                                >
-                                                    {cleanTitle(product.name)}
-                                                </a>
-                                            </td>
-                                            <td className='text-right'>
-                                                {Reais.format(product.cash.total_price)} (
-                                                {product.cash.discount}%)
-                                            </td>
-                                            <td className='text-right'>
-                                                {Reais.format(product.installment.total_price)} (
-                                                {product.installment.max_installments}x)
-                                            </td>
-                                            <td className='text-right'>{product.store}</td>
+                        {cheapestProducts.length > 0 && (
+                            <div className='flex flex-col gap-4'>
+                                <h2 className='text-2xl font-bold'>Menores preços</h2>
+                                <table className='w-full table-auto divide-y divide-slate-800'>
+                                    <thead>
+                                        <tr>
+                                            <th className='text-left !font-semibold'>Produto</th>
+                                            <th className='text-right !font-semibold'>
+                                                Preço à vista
+                                            </th>
+                                            <th className='text-right !font-semibold'>
+                                                Preço parcelado
+                                            </th>
+                                            <th className='text-right !font-semibold'>Loja</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody className='divide-y divide-slate-800 text-sm text-slate-300'>
+                                        {cheapestProducts.map((product) => (
+                                            <tr key={product.id} className='hover:bg-slate-900'>
+                                                <td
+                                                    className='max-w-md truncate'
+                                                    title={product.name}
+                                                >
+                                                    <a
+                                                        href={product.url}
+                                                        target='_blank'
+                                                        rel='noopener noreferrer'
+                                                        className='hover:underline'
+                                                    >
+                                                        {cleanTitle(product.name)}
+                                                    </a>
+                                                </td>
+                                                <td className='text-right'>
+                                                    {Reais.format(product.cash.total_price)} (
+                                                    {product.cash.discount}%)
+                                                </td>
+                                                <td className='text-right'>
+                                                    {Reais.format(product.installment.total_price)}{' '}
+                                                    ({product.installment.max_installments}x)
+                                                </td>
+                                                <td className='text-right'>{product.store}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
 
                         {/* grid */}
-                        <div className='flex flex-col w-full gap-8'>
-                            {sorted.map((result) => (
-                                <div key={result.store} className='flex flex-col gap-4'>
-                                    <h2 className='text-2xl font-bold'>{LABELS[result.store]}</h2>
+                        {sorted.length > 0 && (
+                            <div className='flex flex-col w-full gap-8'>
+                                {sorted.map((result) => (
+                                    <div key={result.store} className='flex flex-col gap-4'>
+                                        <h2 className='text-2xl font-bold'>
+                                            {LABELS[result.store]}
+                                        </h2>
 
-                                    {result.data?.products.length === 0 ? (
-                                        <NotFound center={false} />
-                                    ) : (
-                                        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
-                                            {result.data?.products
-                                                .sort(
-                                                    (a, b) =>
-                                                        a.cash.total_price - b.cash.total_price
-                                                )
-                                                .map((product) => (
-                                                    <GridItem
-                                                        key={product.url}
-                                                        product={product}
-                                                        Reais={Reais}
-                                                    />
-                                                ))}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                                        {result.data?.products.length === 0 ? (
+                                            <NotFound center={false} />
+                                        ) : (
+                                            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
+                                                {result.data?.products
+                                                    .sort(
+                                                        (a, b) =>
+                                                            a.cash.total_price - b.cash.total_price
+                                                    )
+                                                    .map((product) => (
+                                                        <GridItem
+                                                            key={product.url}
+                                                            product={product}
+                                                            Reais={Reais}
+                                                        />
+                                                    ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </>
                 )}
             </main>

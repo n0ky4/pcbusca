@@ -1,5 +1,5 @@
 'use client'
-import { SavedSearch } from '@/lib/storage'
+import { useSettings } from '@/contexts/settings/SettingsContext'
 import { SearchIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
@@ -12,7 +12,6 @@ interface HeaderProps {
     inputChange: (query: string) => void
     handleSearch: (query: string) => void
     reset: () => void
-    savedSearches: SavedSearch[]
 }
 
 const padding = 96
@@ -24,8 +23,10 @@ export function Header({
     inputChange,
     handleSearch,
     reset,
-    savedSearches,
 }: HeaderProps) {
+    const { settings } = useSettings()
+    const savedSearches = settings.savedSearches
+
     const headerContentRef = useRef<HTMLDivElement>(null)
     const [headerContentHeight, setHeaderContentHeight] = useState(0)
 
@@ -76,16 +77,16 @@ export function Header({
                     <div className='w-full text-sm text-slate-500'>
                         <span className='text-slate-400 font-medium'>Pesquisas salvas:</span>
                         <div className='w-full flex items-center justify-center gap-4 flex-wrap'>
-                            {savedSearches.map(({ search, id }) => (
+                            {savedSearches.map(({ query, id }) => (
                                 <button
                                     key={id}
                                     className='hover:underline'
                                     onClick={() => {
-                                        inputChange(search)
-                                        handleSearch(search)
+                                        inputChange(query)
+                                        handleSearch(query)
                                     }}
                                 >
-                                    {search}
+                                    {query}
                                 </button>
                             ))}
                         </div>

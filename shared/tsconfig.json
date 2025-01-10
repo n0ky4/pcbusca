@@ -15,10 +15,9 @@
         "outDir": "./dist",
         "rootDir": "./src",
         "baseUrl": ".",
-        "paths": {
-            "@/*": ["src/*"],
-            "@shared/*": ["../shared/src/*"]
-        }
+        "composite": true,
+        "declaration": true,
+        "declarationMap": true
     },
     "include": ["src/**/*.ts"]
 }

@@ -1,12 +1,8 @@
 import { searchAll, searchEmitter } from '@/core/search.js'
 import { streamSimulator } from '@/example'
 import { log } from '@/log'
-import {
-    SearchResult,
-    searchResultSchema,
-    storeSchema,
-    type FastifyTypedInstance,
-} from '@/types/index.js'
+import type { FastifyTypedInstance } from '@/types/fastify.types'
+import { SearchResult, searchResultSchema, storeSchema } from 'shared'
 import { z } from 'zod'
 
 export async function routes(app: FastifyTypedInstance) {

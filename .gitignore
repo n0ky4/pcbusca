@@ -1,5 +1,8 @@
+node_modules
+
 # local directories
 *.local/
 
 # local files
 *.local.*
+node_modules

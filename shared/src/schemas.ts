@@ -1,5 +1,19 @@
 import { z } from 'zod'
 
+export type Meta = z.infer<typeof metaSchema>
+export type Response = z.infer<typeof responseSchema>
+export type Store = z.infer<typeof storeSchema>
+export type Item = z.infer<typeof itemSchema>
+export type SearchResult = z.infer<typeof searchResultSchema>
+
+export const storeSchema = z.union([
+    z.literal('kabum'),
+    z.literal('pichau'),
+    z.literal('terabyte'),
+    // z.literal('amazon'),
+    // z.literal('mercadolivre'),
+])
+
 export const itemSchema = z.object({
     id: z.string(),
     name: z.string(),
@@ -22,16 +36,6 @@ export const itemSchema = z.object({
         xl: z.string().optional(),
     }),
 })
-export type Item = z.infer<typeof itemSchema>
-
-export const storeSchema = z.union([
-    z.literal('kabum'),
-    z.literal('pichau'),
-    z.literal('terabyte'),
-    // z.literal('amazon'),
-    // z.literal('mercadolivre'),
-])
-export type Store = z.infer<typeof storeSchema>
 
 export const metaSchema = z.object({
     store: storeSchema,
@@ -51,4 +55,3 @@ export const searchResultSchema = z.object({
     store: storeSchema,
     data: responseSchema.nullable(),
 })
-export type SearchResult = z.infer<typeof searchResultSchema>

@@ -1,8 +1,9 @@
 import { getRandomUA, KABUM_BASE_URL } from '@/core/const.js'
 import { KabumError } from '@/errors.js'
 import { log, t, te } from '@/log.js'
-import { Item, Meta, PaginationInput, paginationSettingsSchema, Response } from '@/types/index.js'
+import { PaginationInput, paginationSettingsSchema } from '@/types/index.js'
 import { KabumResponse } from '@/types/kabum.types'
+import { Item, Meta, Response } from 'shared'
 
 const isDataValid = (data: unknown): data is KabumResponse => {
     if (

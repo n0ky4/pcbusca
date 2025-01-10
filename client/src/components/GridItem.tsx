@@ -1,6 +1,6 @@
 import { cleanTitle, truncate } from '@/lib/format'
-import { Item } from '@/schemas'
 import { useMemo } from 'react'
+import { Item } from 'shared'
 
 interface GridItemProps {
     product: Item

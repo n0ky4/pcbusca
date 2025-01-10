@@ -1,0 +1,13 @@
+{
+    "name": "shared",
+    "main": "dist/schemas.js",
+    "types": "dist/schemas.d.ts",
+    "scripts": {
+        "build": "tsc"
+    },
+    "author": "nokya",
+    "license": "AGPL-3.0-only",
+    "dependencies": {
+        "zod": "^3.24.1"
+    }
+}
