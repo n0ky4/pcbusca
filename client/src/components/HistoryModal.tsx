@@ -35,25 +35,24 @@ export function HistoryModal({ show, onClose, onSearch }: HistoryModalProps) {
                     <div className='max-h-80 overflow-auto'>
                         {reversedHistory.map(({ id, entry }) => (
                             <div key={id} className='pr-1'>
-                                <div className='text-sm flex items-center justify-between group hover:bg-slate-800 px-1 rounded'>
-                                    <div className='flex flex-wrap items-center gap-2 text-slate-400'>
-                                        <button
-                                            className='group-hover:text-white hover:underline w-fit text-left'
-                                            onClick={() => handleClickLink(entry)}
-                                        >
-                                            {entry}
-                                        </button>
-                                        <span className='text-slate-500'>—</span>
-                                        <span className='text-slate-500'>
+                                <div className='text-sm flex flex-wrap items-center justify-between group hover:bg-slate-800 px-1 rounded'>
+                                    <button
+                                        className='text-slate-400 group-hover:text-white hover:underline w-fit text-left'
+                                        onClick={() => handleClickLink(entry)}
+                                    >
+                                        {entry}
+                                    </button>
+                                    <div className='flex items-center gap-4'>
+                                        <span className='text-slate-500 group-hover:text-slate-400'>
                                             {new Date(parseInt(id)).toLocaleString()}
                                         </span>
+                                        <button
+                                            className='hover:underline'
+                                            onClick={() => historyHandler.remove(id)}
+                                        >
+                                            Remover
+                                        </button>
                                     </div>
-                                    <button
-                                        className='hover:underline'
-                                        onClick={() => historyHandler.remove(id)}
-                                    >
-                                        Remover
-                                    </button>
                                 </div>
                             </div>
                         ))}
