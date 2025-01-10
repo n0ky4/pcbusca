@@ -3,10 +3,10 @@ import { GridItem } from '@/components/GridItem'
 import { Header } from '@/components/Header'
 import { HistoryModal } from '@/components/HistoryModal'
 import { NotFound } from '@/components/NotFound'
+import { ProductsRanking } from '@/components/ProductsRanking'
 import { SettingsModal } from '@/components/SettingsModal'
 import { TopBar } from '@/components/TopBar'
 import { useSettings } from '@/contexts/settings/SettingsContext'
-import { cleanTitle } from '@/lib/format'
 import { LABELS } from '@/lib/labels'
 import { streamSearch } from '@/lib/req'
 import { useMemo, useState } from 'react'
@@ -120,56 +120,7 @@ export default function Home() {
                         {cheapestProducts.length > 0 && (
                             <div className='flex flex-col gap-4'>
                                 <h2 className='text-2xl font-bold'>Menores preços</h2>
-                                <table className='w-full table-auto divide-y divide-slate-800'>
-                                    <thead>
-                                        <tr>
-                                            <th className='text-left !font-semibold'>Produto</th>
-                                            <th className='text-right !font-semibold'>
-                                                Preço à vista
-                                            </th>
-                                            <th className='text-right !font-semibold'>
-                                                Preço parcelado
-                                            </th>
-                                            <th className='text-right !font-semibold'>Loja</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className='divide-y divide-slate-800 text-sm text-slate-300'>
-                                        {cheapestProducts.map((product) => (
-                                            <tr key={product.id} className='hover:bg-slate-900'>
-                                                <td
-                                                    className='max-w-md truncate'
-                                                    title={product.name}
-                                                >
-                                                    <a
-                                                        href={product.url}
-                                                        target='_blank'
-                                                        rel='noopener noreferrer'
-                                                        className='hover:underline'
-                                                    >
-                                                        {cleanTitle(product.name)}
-                                                    </a>
-                                                </td>
-                                                <td className='text-right'>
-                                                    {Reais.format(product.cash.total_price)} (
-                                                    {product.cash.discount}%)
-                                                </td>
-                                                {product?.installment?.total_price &&
-                                                product?.installment?.max_installments ? (
-                                                    <td className='text-right'>
-                                                        {Reais.format(
-                                                            product.installment.total_price
-                                                        )}{' '}
-                                                        ({product.installment.max_installments}
-                                                        x)
-                                                    </td>
-                                                ) : (
-                                                    <td className='text-right text-slate-500'>-</td>
-                                                )}
-                                                <td className='text-right'>{product.store}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                <ProductsRanking products={cheapestProducts} Reais={Reais} />
                             </div>
                         )}
 
