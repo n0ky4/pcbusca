@@ -1,6 +1,7 @@
 'use client'
 import { SavedSearchHandler } from '@/lib/storage'
 import { createContext, useContext } from 'react'
+import { storeSchema } from 'shared'
 import { z } from 'zod'
 
 export const savedSearchSchema = z.object({
@@ -10,10 +11,12 @@ export const savedSearchSchema = z.object({
 export type SavedSearch = z.infer<typeof savedSearchSchema>
 
 export const settingsSchema = z.object({
-    savedSearches: z.array(savedSearchSchema),
-    pageLimit: z.number(),
-    rankingSize: z.number(),
-    stores: z.array(z.union([z.literal('kabum'), z.literal('pichau'), z.literal('terabyte')])),
+    savedSearches: z.array(savedSearchSchema).default([]),
+    pageLimit: z.number().default(10),
+    rankingSize: z.number().default(10),
+    stores: z.array(storeSchema).default(['kabum', 'pichau', 'terabyte']),
+    history: z.array(z.string()).default([]),
+    historyEnabled: z.boolean().default(true),
 })
 export type Settings = z.infer<typeof settingsSchema>
 
@@ -28,6 +31,8 @@ export const defaultSettings: Settings = {
     pageLimit: 10,
     rankingSize: 10,
     stores: ['kabum', 'pichau', 'terabyte'],
+    history: [],
+    historyEnabled: true,
 }
 
 export const SettingsContext = createContext<SettingsContextType>({

@@ -5,7 +5,7 @@ import {
     settingsSchema,
 } from '@/contexts/settings/SettingsContext'
 
-const SETTINGS_KEY = 'hatsunemiku'
+export const SETTINGS_KEY = 'hatsunemiku'
 
 export const isSearchValid = (search: string) => {
     const fmt = search.trim()
@@ -63,7 +63,10 @@ export function getSettingsFromStorage(): Settings {
     try {
         const parsed = JSON.parse(savedSettings)
         const check = settingsSchema.safeParse(parsed)
-        if (check.success) return check.data
+        if (check.success) {
+            if (parsed !== check.data) setSettingsToStorage(check.data)
+            return check.data
+        }
 
         console.error('Invalid settings found in storage:', check.error)
         return defaultSettings
