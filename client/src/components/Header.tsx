@@ -3,7 +3,7 @@ import { useSettings } from '@/contexts/settings/SettingsContext'
 import { SearchIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { RoundButton } from './RoundButton'
+import { RoundButton } from './button/RoundButton'
 
 interface HeaderProps {
     searched: boolean

@@ -1,10 +1,10 @@
 import { useSettings } from '@/contexts/settings/SettingsContext'
 import { PropsWithChildren, useMemo, useState } from 'react'
-import { Button } from './Button'
-import { Checkbox } from './Checkbox'
-import { ClearHistoryButton } from './ClearHistoryButton'
+import { Checkbox } from '../Checkbox'
+import { SettingsInput } from '../SettingsInput'
+import { Button } from './../button/Button'
+import { ClearHistoryButton } from './../button/ClearHistoryButton'
 import { Modal } from './Modal'
-import { SettingsInput } from './SettingsInput'
 
 interface SettingsModalProps {
     show: boolean

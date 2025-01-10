@@ -1,7 +1,7 @@
 import { useSettings } from '@/contexts/settings/SettingsContext'
-import { ClearHistoryButton } from './ClearHistoryButton'
+import { NotFound } from '../NotFound'
+import { ClearHistoryButton } from './../button/ClearHistoryButton'
 import { Modal } from './Modal'
-import { NotFound } from './NotFound'
 
 interface HistoryModalProps {
     show: boolean

@@ -1,7 +1,7 @@
 import { useSettings } from '@/contexts/settings/SettingsContext'
 import { Gear } from '@phosphor-icons/react'
 import { History } from 'lucide-react'
-import { RoundButton } from './RoundButton'
+import { RoundButton } from './button/RoundButton'
 
 interface TopBarProps {
     onHistoryClick: () => void

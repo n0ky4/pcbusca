@@ -2,6 +2,7 @@ import { SettingsContextProvider } from '@/contexts/settings/SettingsContextProv
 import '@/styles/globals.css'
 import type { Metadata } from 'next'
 import { Rubik } from 'next/font/google'
+import { Toaster } from 'react-hot-toast'
 import { twMerge } from 'tailwind-merge'
 
 const font = Rubik({
@@ -21,6 +22,7 @@ export default function RootLayout({
         <html lang='pt-BR'>
             <body className={twMerge(font.className, 'antialiased', 'text-white bg-slate-950')}>
                 <SettingsContextProvider>{children}</SettingsContextProvider>
+                <Toaster />
             </body>
         </html>
     )

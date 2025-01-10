@@ -2,7 +2,7 @@ import { Description, Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@
 import { X } from 'lucide-react'
 import type { PropsWithChildren } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { RoundButton } from './RoundButton'
+import { RoundButton } from './../button/RoundButton'
 
 interface ModalProps extends PropsWithChildren {
     show: boolean
@@ -50,14 +50,6 @@ export function Modal({ show, onClose, children, title, description }: ModalProp
                             <Description className='text-slate-500 mt-2'>{description}</Description>
                         )}
                     </div>
-                    {/* <p>
-                        Are you sure you want to deactivate your account? All of your data will be
-                        permanently removed.
-                    </p>
-                    <div className='flex gap-4'>
-                        <button onClick={onClose}>Cancel</button>
-                        <button onClick={onClose}>Deactivate</button>
-                    </div> */}
                     {children}
                 </DialogPanel>
             </div>
