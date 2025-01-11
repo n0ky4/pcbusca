@@ -38,7 +38,7 @@ export function streamSearch(query: string) {
                     if (msg === 'end') dispatch('end')
                     if (msg === 'error') dispatch('error', parsed.store)
 
-                    if (!msg && parsed?.store && parsed?.data) dispatch('data', parsed)
+                    if (!msg && parsed?.store) dispatch('data', parsed)
                 } catch (err) {
                     console.error('Error parsing JSON:', err)
                 }
