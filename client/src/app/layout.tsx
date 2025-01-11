@@ -1,6 +1,6 @@
 import { SettingsContextProvider } from '@/contexts/settings/SettingsContextProvider'
 import '@/styles/globals.css'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Rubik } from 'next/font/google'
 import { Toaster } from 'react-hot-toast'
 import { twMerge } from 'tailwind-merge'
@@ -11,6 +11,20 @@ const font = Rubik({
 
 export const metadata: Metadata = {
     title: 'pcbusca',
+    description: 'pesquise por produtos em diversas lojas uauuu!!',
+    authors: [
+        {
+            name: 'nokya',
+            url: 'https://nokya.me/',
+        },
+    ],
+    keywords: ['pcbusca', 'pesquisa', 'produtos', 'lojas', 'comparação', 'comparador de preços'],
+    icons: '/favicon.svg',
+}
+
+export const viewport: Viewport = {
+    themeColor: '#5eead4',
+    colorScheme: 'dark',
 }
 
 export default function RootLayout({
