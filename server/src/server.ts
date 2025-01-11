@@ -11,46 +11,55 @@ import {
     ZodTypeProvider,
 } from 'fastify-type-provider-zod'
 import { finalize } from './core/puppeteer'
+import { setupQuotaCron } from './core/quota'
 import { log } from './log'
+import { setupRateLimit } from './ratelimit'
 import { routes } from './routes'
 
 let startedAt: Date | null = null
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000
+
 const app = fastify({
-    logger: process.env.NODE_ENV === 'production',
+    logger: true,
 }).withTypeProvider<ZodTypeProvider>()
 
-app.setValidatorCompiler(validatorCompiler)
-app.setSerializerCompiler(serializerCompiler)
+async function main() {
+    setupQuotaCron()
 
-app.register(fastifyHelmet)
-app.register(fastifyCors, { origin: '*' })
+    await app.setValidatorCompiler(validatorCompiler)
+    await app.setSerializerCompiler(serializerCompiler)
 
-app.register(fastifySwagger, {
-    openapi: {
-        info: {
-            title: 'pcbusca-api',
-            version: '1.0.0',
+    await setupRateLimit(app)
+
+    await app.register(fastifyHelmet)
+    await app.register(fastifyCors, { origin: '*' })
+
+    await app.register(fastifySwagger, {
+        openapi: {
+            info: {
+                title: 'pcbusca-api',
+                version: '1.0.0',
+            },
         },
-    },
-    transform: jsonSchemaTransform,
-})
-app.register(fastifySwaggerUi, {
-    routePrefix: '/docs',
-    logo: undefined, // hide fastify logo
-})
+        transform: jsonSchemaTransform,
+    })
+    await app.register(fastifySwaggerUi, {
+        routePrefix: '/docs',
+        logo: undefined, // hide fastify logo
+    })
 
-app.register(routes)
+    await app.register(routes)
 
-app.get('/', async () => {
-    return { ok: true, startedAt }
-})
+    app.get('/', async () => {
+        return { ok: true, startedAt }
+    })
 
-app.listen({ port: PORT }).then(() => {
-    startedAt = new Date()
-    log.info(`server listening on port http://localhost:${PORT}`)
-})
+    app.listen({ port: PORT }).then(() => {
+        startedAt = new Date()
+        log.info(`server listening on port http://localhost:${PORT}`)
+    })
+}
 
 const EXIT_SIGNALS = ['SIGINT', 'SIGTERM']
 let shuttingDown = false
@@ -67,3 +76,5 @@ EXIT_SIGNALS.forEach((signal) => {
         process.exit(0)
     })
 })
+
+main()

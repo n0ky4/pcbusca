@@ -1,3 +1,4 @@
+import { quota } from '@/core/quota'
 import { searchAll, searchEmitter } from '@/core/search.js'
 import { streamSimulator } from '@/example'
 import { log } from '@/log'
@@ -10,6 +11,11 @@ import {
     storeSchema,
 } from 'shared'
 import { z } from 'zod'
+
+const quotaExceededSchema = z.object({
+    msg: z.literal('error'),
+    code: z.literal('QUOTA_EXCEEDED'),
+})
 
 export async function routes(app: FastifyTypedInstance) {
     app.post(
@@ -25,11 +31,23 @@ export async function routes(app: FastifyTypedInstance) {
                 }),
                 response: {
                     200: searchResultSchema.array(),
+                    403: quotaExceededSchema,
                 },
             },
         },
-        async ({ body: { query, page, stores } }) => {
+        async (req, reply) => {
+            if (!quota.check(req.ip)) {
+                reply.code(403).send({ msg: 'error', code: 'QUOTA_EXCEEDED' })
+                return
+            }
+
+            const {
+                body: { query, page, stores },
+            } = req
+
+            quota.increment(req.ip)
             const results = await searchAll(query, { page, stores })
+
             return results
         }
     )
@@ -57,10 +75,16 @@ export async function routes(app: FastifyTypedInstance) {
                                 '{"msg": "start"}␀{"store": "kabum", "data": [...]}␀{"store": "pichau", "data": [...]}␀{"store": "terabyte", "data": null}␀{"msg": "end"}␀\n' +
                                 '```'
                         ),
+                    403: quotaExceededSchema,
                 },
             },
         },
         async (req, reply) => {
+            if (!quota.check(req.ip)) {
+                reply.code(403).send({ msg: 'error', code: 'QUOTA_EXCEEDED' })
+                return
+            }
+
             // content type: text/event-stream
             reply.raw.setHeader('Content-Type', 'text/event-stream')
             reply.raw.setHeader('Cache-Control', 'no-cache')
@@ -80,6 +104,7 @@ export async function routes(app: FastifyTypedInstance) {
 
             emitter.on('start', () => {
                 send({ msg: 'start' })
+                quota.increment(req.ip)
             })
 
             emitter.on('data', (data: SearchResult) => {

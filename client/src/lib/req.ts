@@ -1,6 +1,16 @@
 import { Store } from 'shared'
 
 type Event = 'start' | 'end' | 'data' | 'raw' | 'error'
+export type ErrorTypeCode = {
+    type: 'error'
+    code: 'QUOTA_EXCEEDED' | 'RATE_LIMIT'
+}
+export type ErrorTypeStore = {
+    type: 'store'
+    store: Store
+}
+
+export type StreamError = ErrorTypeCode | ErrorTypeStore
 
 export function streamSearch(query: string, stores?: Store[]) {
     if (stores && stores.length === 0) throw new Error('No stores provided')
@@ -46,12 +56,21 @@ export function streamSearch(query: string, stores?: Store[]) {
                     const parsed = JSON.parse(part)
 
                     const msg = parsed?.msg
+                    const store = parsed?.store
+                    const code = parsed?.code
 
                     if (msg === 'start') dispatch('start')
                     if (msg === 'end') dispatch('end')
-                    if (msg === 'error') dispatch('error', parsed.store)
 
-                    if (!msg && parsed?.store) dispatch('data', parsed)
+                    if (msg === 'error') {
+                        if (store) {
+                            dispatch('error', { type: 'store', store } as ErrorTypeStore)
+                        } else if (code) {
+                            dispatch('error', { type: 'code', code } as unknown as ErrorTypeCode)
+                        }
+                    }
+
+                    if (!msg && store) dispatch('data', parsed)
                 } catch (err) {
                     console.error('Error parsing JSON:', err)
                 }

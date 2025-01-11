@@ -11,7 +11,7 @@ import { useSettings } from '@/contexts/settings/SettingsContext'
 import { formatDate, getStoreLabel } from '@/lib/common'
 import { LABELS } from '@/lib/labels'
 import { log } from '@/lib/log'
-import { streamSearch } from '@/lib/req'
+import { StreamError, streamSearch } from '@/lib/req'
 import { useMemo, useState } from 'react'
 import { MIN_SEARCH_LENGTH, SearchResult } from 'shared'
 
@@ -74,9 +74,25 @@ export function Home() {
             setResults((prev) => [...prev, data])
         })
 
-        search.on('error', (store: string) => {
-            log.error(`error while fetching products in ${getStoreLabel(store)}`)
-            t.error(`Erro ao buscar produtos na loja ${getStoreLabel(store)}`)
+        search.on('error', (error: StreamError) => {
+            if (error.type === 'store') {
+                const { store } = error
+                log.error(`error while fetching products in ${getStoreLabel(store)}`)
+                t.error(`Erro ao buscar produtos na loja ${getStoreLabel(store)}`)
+
+                return
+            }
+
+            switch (error.code) {
+                case 'QUOTA_EXCEEDED':
+                    log.error('quota exceeded')
+                    t.error('Cota excedida, tente novamente amanhã! :3')
+                    break
+                case 'RATE_LIMIT':
+                    log.error('rate limit exceeded')
+                    t.error('Calmaaaaaa!!')
+                    break
+            }
         })
 
         search.on('end', () => {
