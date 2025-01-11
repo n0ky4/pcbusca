@@ -1,7 +1,7 @@
 {
     "name": "shared",
-    "main": "dist/schemas.js",
-    "types": "dist/schemas.d.ts",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "scripts": {
         "build": "tsc"
     },

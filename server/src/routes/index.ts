@@ -2,7 +2,13 @@ import { searchAll, searchEmitter } from '@/core/search.js'
 import { streamSimulator } from '@/example'
 import { log } from '@/log'
 import type { FastifyTypedInstance } from '@/types/fastify.types'
-import { SearchResult, searchResultSchema, storeSchema } from 'shared'
+import {
+    MAX_SEARCH_LENGTH,
+    MIN_SEARCH_LENGTH,
+    SearchResult,
+    searchResultSchema,
+    storeSchema,
+} from 'shared'
 import { z } from 'zod'
 
 export async function routes(app: FastifyTypedInstance) {
@@ -36,7 +42,7 @@ export async function routes(app: FastifyTypedInstance) {
                 description: 'Stream search for products',
                 body: z.object({
                     test: z.boolean().default(false),
-                    query: z.string().max(100).min(3),
+                    query: z.string().max(MAX_SEARCH_LENGTH).min(MIN_SEARCH_LENGTH),
                     stores: z.array(storeSchema).min(1).default(['kabum', 'pichau', 'terabyte']),
                 }),
                 response: {
