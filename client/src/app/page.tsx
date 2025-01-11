@@ -58,6 +58,14 @@ export default function Home() {
             setResults((prev) => [...prev, data])
         })
 
+        search.on('error', (store: string) => {
+            t.error(
+                `Erro ao buscar produtos na loja ${
+                    store in LABELS ? LABELS[store as keyof typeof LABELS] : store
+                }`
+            )
+        })
+
         search.on('end', () => {
             setLoading(false)
             console.log('end')

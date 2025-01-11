@@ -1,4 +1,4 @@
-type Event = 'start' | 'end' | 'data' | 'raw'
+type Event = 'start' | 'end' | 'data' | 'raw' | 'error'
 export function streamSearch(query: string) {
     const events: Record<string, any> = {}
 
@@ -33,14 +33,14 @@ export function streamSearch(query: string) {
                     const parsed = JSON.parse(part)
 
                     const msg = parsed?.msg
+
                     if (msg === 'start') dispatch('start')
                     if (msg === 'end') dispatch('end')
+                    if (msg === 'error') dispatch('error', parsed.store)
 
-                    const store = parsed?.store
-                    if (store) dispatch('data', parsed)
+                    if (!msg && parsed?.store && parsed?.data) dispatch('data', parsed)
                 } catch (err) {
                     console.error('Error parsing JSON:', err)
-                    console.log('raw:', `"${text}"`)
                 }
             }
         }

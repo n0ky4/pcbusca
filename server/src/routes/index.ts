@@ -58,26 +58,30 @@ export async function routes(app: FastifyTypedInstance) {
                 ? streamSimulator()
                 : searchEmitter(req.body.query, { stores: req.body.stores })
 
+            const send = (data: object) => {
+                reply.raw.write(JSON.stringify(data) + separator)
+            }
+
             emitter.on('start', () => {
-                reply.raw.write(JSON.stringify({ msg: 'start' }) + separator)
+                send({ msg: 'start' })
             })
 
             emitter.on('data', (data: SearchResult) => {
-                reply.raw.write(JSON.stringify(data) + separator)
+                send(data)
             })
 
             emitter.on('end', () => {
                 log.info('stream end')
-                reply.raw.write(JSON.stringify({ msg: 'end' }) + separator)
+
+                send({ msg: 'end' })
                 reply.raw.end()
             })
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             emitter.on('error', (err: any) => {
-                if (err?.name === 'NOT_FOUND') return
+                log.warn('erro recebido no stream', err)
 
-                log.error('stream error')
-                console.error(err)
+                if (err?.store) send({ msg: 'error', store: err?.store })
             })
 
             emitter.start()
