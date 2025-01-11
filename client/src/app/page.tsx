@@ -8,7 +8,9 @@ import { ProductsRanking } from '@/components/ProductsRanking'
 import { t } from '@/components/Toaster'
 import { TopBar } from '@/components/TopBar'
 import { useSettings } from '@/contexts/settings/SettingsContext'
+import { formatDate, getStoreLabel } from '@/lib/common'
 import { LABELS } from '@/lib/labels'
+import { log } from '@/lib/log'
 import { streamSearch } from '@/lib/req'
 import { useMemo, useState } from 'react'
 import { SearchResult } from 'shared'
@@ -33,7 +35,12 @@ export default function Home() {
         if (!_query || loading) return
 
         if (changeInput) setQuery(_query)
-        const search = streamSearch(_query)
+        const search = streamSearch(_query, settings.stores)
+
+        log.info(`searching for "${_query}" in ${settings.stores.join(', ')}`)
+
+        let startedAt: null | Date = null
+        let endedAt: null | Date = null
 
         search.on('start', () => {
             setResults([])
@@ -41,13 +48,14 @@ export default function Home() {
 
             if (settings.keepHistory) history.add(_query)
 
-            console.log('start')
+            startedAt = new Date()
+            log.info('search started at', formatDate(startedAt))
         })
 
         search.on('data', (data: SearchResult) => {
             if (!data.data?.products) {
-                // console.warn(`No products found for "${data.store}"`)
-                t.warning(`Nenhum produto encontrado na loja ${LABELS[data.store]}`)
+                log.warn(`no products found in ${getStoreLabel(data.store)}`)
+                t.warning(`Nenhum produto encontrado na loja ${getStoreLabel(data.store)}`)
                 return
             }
 
@@ -59,16 +67,16 @@ export default function Home() {
         })
 
         search.on('error', (store: string) => {
-            t.error(
-                `Erro ao buscar produtos na loja ${
-                    store in LABELS ? LABELS[store as keyof typeof LABELS] : store
-                }`
-            )
+            log.error(`error while fetching products in ${getStoreLabel(store)}`)
+            t.error(`Erro ao buscar produtos na loja ${getStoreLabel(store)}`)
         })
 
         search.on('end', () => {
             setLoading(false)
-            console.log('end')
+
+            endedAt = new Date()
+            log.info('search ended at', formatDate(endedAt))
+            log.info('search took', endedAt.getTime() - startedAt!.getTime(), 'ms')
         })
 
         search.start()

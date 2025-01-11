@@ -1,7 +1,10 @@
 import { useSettings } from '@/contexts/settings/SettingsContext'
+import { getStoreLabel } from '@/lib/common'
 import { PropsWithChildren, useMemo, useState } from 'react'
+import { ALL_STORES, Store, storeSchema } from 'shared'
 import { Checkbox } from '../Checkbox'
 import { SettingsInput } from '../SettingsInput'
+import { t } from '../Toaster'
 import { Button } from './../button/Button'
 import { ClearHistoryButton } from './../button/ClearHistoryButton'
 import { Modal } from './Modal'
@@ -49,6 +52,26 @@ export function SettingsModal({ show, onClose }: SettingsModalProps) {
     }
 
     const toggleKeepHistory = () => setSettings({ ...settings, keepHistory: !settings.keepHistory })
+    const handleStoreChange = (store_str: string) => {
+        const { success } = storeSchema.safeParse(store_str)
+        if (!success) return
+
+        const store = store_str as Store
+
+        let res = settings.stores
+
+        if (settings.stores.includes(store as Store)) {
+            // se a loja já estiver na lista, remover
+            res = settings.stores.filter((s) => s !== store)
+        } else {
+            // se não, adicionar
+            res = [...settings.stores, store]
+        }
+
+        if (res.length === 0) return t.error('Selecione ao menos uma loja!')
+
+        setSettings({ ...settings, stores: res })
+    }
 
     return (
         <Modal show={show} onClose={onClose} title='Configurações'>
@@ -99,7 +122,10 @@ export function SettingsModal({ show, onClose }: SettingsModalProps) {
                     <ClearHistoryButton />
                 </div>
             </SettingsItem>
-            <SettingsItem title='Tamanho do ranking'>
+            <SettingsItem
+                title='Tamanho do ranking'
+                description='Quantidade de itens a serem exibidos no ranking de menores preços'
+            >
                 <SettingsInput
                     type='number'
                     value={settings.rankingSize}
@@ -109,6 +135,19 @@ export function SettingsModal({ show, onClose }: SettingsModalProps) {
                         setSettings({ ...settings, rankingSize: Number(e.target.value) || 10 })
                     }
                 />
+            </SettingsItem>
+            <SettingsItem title='Lojas' description='Selecione as lojas que deseja pesquisar'>
+                <div className='flex items-center justify-between gap-4 flex-wrap'>
+                    {ALL_STORES.map((store) => (
+                        <Checkbox
+                            key={store}
+                            enabled={settings.stores.includes(store)}
+                            setEnabled={() => handleStoreChange(store)}
+                        >
+                            {getStoreLabel(store)}
+                        </Checkbox>
+                    ))}
+                </div>
             </SettingsItem>
         </Modal>
     )

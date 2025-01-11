@@ -37,10 +37,20 @@ export async function routes(app: FastifyTypedInstance) {
                 body: z.object({
                     test: z.boolean().default(false),
                     query: z.string().max(100).min(3),
-                    stores: z.array(storeSchema).default(['kabum', 'pichau', 'terabyte']),
+                    stores: z.array(storeSchema).min(1).default(['kabum', 'pichau', 'terabyte']),
                 }),
                 response: {
-                    200: z.string().describe('Stream of search results'),
+                    200: z
+                        .string()
+                        .describe(
+                            'Stream of JSON messages separated by the "␀" (symbol for null / U+2400) character. Each message is a JSON object with the following structure:\n' +
+                                '- Control messages: Objects with the key `msg`, which can be one of `"start"`, `"end"`, or `"error"`. The error message will also contain the key `store` with the store name that caused the error. Examples: `{"msg": "start"}`, `{"msg": "end"}`, `{"msg": "error", "store": "kabum"}`.\n' +
+                                '- Search results: JSON objects representing product search results as per the `SearchResult` schema.\n' +
+                                'Example stream:\n' +
+                                '```json\n' +
+                                '{"msg": "start"}␀{"store": "kabum", "data": [...]}␀{"store": "pichau", "data": [...]}␀{"store": "terabyte", "data": null}␀{"msg": "end"}␀\n' +
+                                '```'
+                        ),
                 },
             },
         },

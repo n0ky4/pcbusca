@@ -1,14 +1,27 @@
+import { Store } from 'shared'
+
 type Event = 'start' | 'end' | 'data' | 'raw' | 'error'
-export function streamSearch(query: string) {
+
+export function streamSearch(query: string, stores?: Store[]) {
+    if (stores && stores.length === 0) throw new Error('No stores provided')
+
     const events: Record<string, any> = {}
 
     async function request() {
+        const reqBody: {
+            query: string
+            stores?: Store[]
+        } = {
+            query,
+            ...(stores && { stores }),
+        }
+
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/stream-search`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query }),
+            body: JSON.stringify(reqBody),
         })
 
         if (!res.body) throw new Error('No body')

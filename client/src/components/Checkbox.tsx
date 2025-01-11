@@ -14,8 +14,10 @@ export function Checkbox({ enabled, setEnabled, children }: CheckboxProps) {
             checked={enabled}
             onChange={setEnabled}
             className={twMerge(
+                'transition-all ease-out duration-200',
                 'group flex items-center justify-center size-6 rounded-md border cursor-pointer',
-                'bg-slate-900 border-slate-800 data-[checked]:bg-teal-400'
+                'bg-slate-900 border-slate-800 data-[checked]:bg-teal-400',
+                'outline-none ring-0 focus:ring-2 focus:ring-teal-200'
             )}
         >
             {enabled && <Check className='w-4 h-4 text-slate-900' weight='bold' />}

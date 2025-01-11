@@ -14,6 +14,11 @@ export const storeSchema = z.union([
     // z.literal('mercadolivre'),
 ])
 
+export const ALL_STORES = storeSchema.options.map((option) => {
+    if (option instanceof z.ZodLiteral) return option.value
+    throw new Error('Schema contains non-literal types.')
+})
+
 export const itemSchema = z.object({
     id: z.string(),
     name: z.string(),

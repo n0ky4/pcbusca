@@ -1,4 +1,5 @@
 import { IdItem, Settings } from '@/contexts/settings/SettingsContext'
+import { log } from '../log'
 
 // i know this code looks like the savedsearch thingy
 // but this logic is only used twice so it's pointless
@@ -12,6 +13,7 @@ export function createHistoryHandler(
     setSettings: (settings: Settings) => void
 ) {
     const get: () => IdItem[] = () => {
+        log.info(`got history: ${settings.history.length} entries`)
         return settings.history
     }
 
@@ -19,6 +21,7 @@ export function createHistoryHandler(
         const saved = get()
         if (saved.length >= MAX_HISTORY) {
             // remove the last entry if the history is full
+            log.warn('history is full, removing last entry')
             saved.shift()
         }
 
@@ -28,6 +31,8 @@ export function createHistoryHandler(
         })
 
         setSettings({ ...settings, history: saved })
+        log.info(`added to history: ${entry}`)
+
         return saved
     }
 
@@ -36,11 +41,15 @@ export function createHistoryHandler(
         const filtered = saved.filter((s) => s.id !== id)
 
         setSettings({ ...settings, history: filtered })
+        log.info(`removed from history: ${id}`)
+
         return filtered
     }
 
     const clear: () => IdItem[] = () => {
         setSettings({ ...settings, history: [] })
+        log.info('cleared history')
+
         return []
     }
 

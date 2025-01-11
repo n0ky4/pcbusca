@@ -1,4 +1,5 @@
 import { defaultSettings, Settings, settingsSchema } from '@/contexts/settings/SettingsContext'
+import { log } from '../log'
 
 export const SETTINGS_KEY = 'hatsunemiku'
 
@@ -7,21 +8,38 @@ export function setSettingsToStorage(settings: Settings) {
 }
 
 export function getSettingsFromStorage(): Settings {
+    log.info('getting settings from local storage')
+
     const savedSettings = localStorage.getItem(SETTINGS_KEY)
-    if (!savedSettings) return defaultSettings
+    if (!savedSettings) {
+        log.warn('no settings found in storage, using default settings')
+        return defaultSettings
+    }
+
+    log.info('parsing settings from storage')
 
     try {
         const parsed = JSON.parse(savedSettings)
         const check = settingsSchema.safeParse(parsed)
         if (check.success) {
-            if (parsed !== check.data) setSettingsToStorage(check.data)
+            log.info('settings parsed successfully')
+
+            if (JSON.stringify(check.data) !== savedSettings) {
+                log.warn('settings were modified to match the schema')
+                setSettingsToStorage(check.data)
+            }
+
             return check.data
         }
 
-        console.error('Invalid settings found in storage:', check.error)
+        log.error('invalid settings found in storage:', check.error)
+        log.warn('using default settings instead')
+
         return defaultSettings
     } catch (err) {
-        console.error('Error parsing settings from storage:', err)
+        log.error('error parsing settings from storage:', err)
+        log.warn('using default settings instead')
+
         return defaultSettings
     }
 }
