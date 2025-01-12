@@ -2,10 +2,14 @@
     "name": "pcbusca",
     "version": "1.0.0",
     "scripts": {
+        "dev": "concurrently \"pnpm --filter server dev\" \"pnpm --filter client dev\"",
         "start": "concurrently \"pnpm --filter server start\" \"pnpm --filter client start\"",
+        "start:server": "pnpm --filter server start",
+        "start:client": "pnpm --filter client start",
         "build": "pnpm --filter shared build && pnpm --filter server build && pnpm --filter client build",
-        "build:shared": "pnpm --filter shared build",
-        "dev": "concurrently \"pnpm --filter server dev\" \"pnpm --filter client dev\""
+        "build:client": "pnpm --filter client build",
+        "build:server": "pnpm --filter server build",
+        "build:shared": "pnpm --filter shared build"
     },
     "workspaces": [
         "client",
