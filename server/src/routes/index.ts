@@ -12,8 +12,6 @@ import {
 } from 'shared'
 import { z } from 'zod'
 
-export const SEPARATOR = '␀'
-
 const quotaExceededSchema = z.object({
     msg: z.literal('error'),
     code: z.literal('QUOTA_EXCEEDED'),
@@ -23,6 +21,9 @@ const internalServerErrorSchema = z.object({
     msg: z.literal('error'),
     code: z.literal('INTERNAL_SERVER_ERROR'),
 })
+
+const IN_SEP = '[['
+const OUT_SEP = ']]'
 
 export async function routes(app: FastifyTypedInstance) {
     app.post(
@@ -90,12 +91,12 @@ export async function routes(app: FastifyTypedInstance) {
                     200: z
                         .string()
                         .describe(
-                            'Stream of JSON messages separated by the "␀" (symbol for null / U+2400) character. Each message is a JSON object with the following structure:\n' +
-                                '- Control messages: Objects with the key `msg`, which can be one of `"start"`, `"end"`, or `"error"`. The error message will also contain the key `store` with the store name that caused the error. Examples: `{"msg": "start"}`, `{"msg": "end"}`, `{"msg": "error", "store": "kabum"}`.\n' +
+                            'Stream of JSON messages separated by the "[[" (start) and "]]" (end) separators. Each message is a JSON object with the following structure:\n' +
+                                '- Control messages: Objects with the key `msg`, which can be one of `"start"`, `"end"`, or `"error"`. The error message may also contain the key `store` with the store name that caused the error, or the `code` key, that\'s the code related to rate limit (RATE_LIMIT) or quota (QUOTA_EXCEEDED) errors. Examples: `{"msg": "start"}`, `{"msg": "end"}`, `{"msg": "error", "store": "kabum"}`, `{"msg": "error", "code": "QUOTA_EXCEEDED"}`.\n' +
                                 '- Search results: JSON objects representing product search results as per the `SearchResult` schema.\n' +
                                 'Example stream:\n' +
                                 '```json\n' +
-                                '{"msg": "start"}␀{"store": "kabum", "data": [...]}␀{"store": "pichau", "data": [...]}␀{"store": "terabyte", "data": null}␀{"msg": "end"}␀\n' +
+                                '[[{"msg": "start"}]][[{"store": "kabum", "data": [...]}]][[{"store": "pichau", "data": [...]}]][[{"store": "terabyte", "data": null}]][[{"msg": "end"}]]\n' +
                                 '```'
                         ),
                     403: quotaExceededSchema,
@@ -118,7 +119,7 @@ export async function routes(app: FastifyTypedInstance) {
                 return
             }
 
-            const send = (data: object) => reply.raw.write(JSON.stringify(data) + SEPARATOR)
+            const send = (data: object) => reply.raw.write(IN_SEP + JSON.stringify(data) + OUT_SEP)
 
             if (!quota.check(req.ip)) {
                 send({ msg: 'error', code: 'QUOTA_EXCEEDED' })
@@ -160,7 +161,7 @@ export async function routes(app: FastifyTypedInstance) {
             emitter.on('error', (err: any) => {
                 log.error(`[stream-search] error for ${cacheKey}`, err)
                 hasErrors = true
-                if (err?.store) send({ msg: 'error', store: err?.store })
+                if (err?.store) send({ msg: 'error', store: err.store })
             })
 
             emitter.start()
