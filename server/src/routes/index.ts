@@ -22,8 +22,10 @@ const internalServerErrorSchema = z.object({
     code: z.literal('INTERNAL_SERVER_ERROR'),
 })
 
-const IN_SEP = '[['
-const OUT_SEP = ']]'
+export const sep = {
+    IN: '[[',
+    OUT: ']]',
+}
 
 export async function routes(app: FastifyTypedInstance) {
     app.post(
@@ -119,7 +121,7 @@ export async function routes(app: FastifyTypedInstance) {
                 return
             }
 
-            const send = (data: object) => reply.raw.write(IN_SEP + JSON.stringify(data) + OUT_SEP)
+            const send = (data: object) => reply.raw.write(sep.IN + JSON.stringify(data) + sep.OUT)
 
             if (!quota.check(req.ip)) {
                 send({ msg: 'error', code: 'QUOTA_EXCEEDED' })

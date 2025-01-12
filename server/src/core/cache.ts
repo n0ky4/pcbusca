@@ -1,4 +1,4 @@
-import { SEPARATOR } from '@/routes'
+import { sep } from '@/routes'
 import { TimedMap } from '@/timedMap'
 import { FastifyReply } from 'fastify'
 import { SearchResult } from 'shared'
@@ -29,7 +29,7 @@ export const cacheHandler = {
             ]
 
             for (const data of finalRes) {
-                reply.raw.write(JSON.stringify(data) + SEPARATOR)
+                reply.raw.write(sep.IN + JSON.stringify(data) + sep.OUT)
             }
 
             reply.raw.end()
