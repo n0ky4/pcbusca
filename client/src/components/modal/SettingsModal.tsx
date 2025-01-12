@@ -10,8 +10,6 @@ import { Button } from './../button/Button'
 import { ClearHistoryButton } from './../button/ClearHistoryButton'
 import { BaseModalProps, Modal } from './Modal'
 
-interface SettingsModalProps extends BaseModalProps {}
-
 interface SettingsItemProps extends PropsWithChildren {
     title: string
     description?: string
@@ -31,7 +29,7 @@ function SettingsItem({ title, description, children }: SettingsItemProps) {
     )
 }
 
-export function SettingsModal({ show, onClose }: SettingsModalProps) {
+export function SettingsModal({ show, onClose }: BaseModalProps) {
     const { settings, setSettings, savedSearch } = useSettings()
     const { savedSearches } = settings
 

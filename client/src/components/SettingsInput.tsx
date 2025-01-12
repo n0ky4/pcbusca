@@ -1,8 +1,6 @@
 import { twMerge } from 'tailwind-merge'
 
-interface SettingsInputProps extends React.HTMLProps<HTMLInputElement> {}
-
-export function SettingsInput({ className, ...rest }: SettingsInputProps) {
+export function SettingsInput({ className, ...rest }: React.HTMLProps<HTMLInputElement>) {
     return (
         <input
             placeholder='Digite o termo da pesquisa'

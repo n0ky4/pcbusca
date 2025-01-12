@@ -3,7 +3,6 @@ import { quota } from '@/core/quota'
 import { searchAll, searchEmitter } from '@/core/search.js'
 import { streamSimulator } from '@/example'
 import { log } from '@/log'
-import { internalServerErrorSchema, quotaExceededSchema } from '@/types'
 import type { FastifyTypedInstance } from '@/types/fastify.types'
 import {
     MAX_SEARCH_LENGTH,
@@ -15,6 +14,16 @@ import {
 import { z } from 'zod'
 
 export const SEPARATOR = '␀'
+
+const quotaExceededSchema = z.object({
+    msg: z.literal('error'),
+    code: z.literal('QUOTA_EXCEEDED'),
+})
+
+const internalServerErrorSchema = z.object({
+    msg: z.literal('error'),
+    code: z.literal('INTERNAL_SERVER_ERROR'),
+})
 
 export async function routes(app: FastifyTypedInstance) {
     app.post(

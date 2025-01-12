@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import { Button } from '../button/Button'
 import { BaseModalProps, Modal } from './Modal'
 
-interface AboutModalProps extends BaseModalProps {}
-
 function DumbLink({ href, children }: { href: string; children: React.ReactNode }) {
     return (
         <a
@@ -21,7 +19,7 @@ function DumbLink({ href, children }: { href: string; children: React.ReactNode 
 
 const ID = 'sans'
 
-export function AboutModal({ show, onClose }: AboutModalProps) {
+export function AboutModal({ show, onClose }: BaseModalProps) {
     const [crazyMode, setCrazyMode] = useState(false)
     const audioRef = useRef<HTMLAudioElement | null>(null)
 

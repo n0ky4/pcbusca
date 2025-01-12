@@ -9,7 +9,7 @@ const isAllowed = (url: string) => {
     return ALLOWED_DOMAINS.includes(domain)
 }
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest) {
     const { nextUrl } = req
 
     const url = nextUrl.searchParams?.get('url')

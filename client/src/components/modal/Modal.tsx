@@ -9,7 +9,7 @@ export interface BaseModalProps {
     onClose: () => void
 }
 
-interface ModalProps extends BaseModalProps, PropsWithChildren<{}> {
+interface ModalProps extends BaseModalProps, PropsWithChildren {
     title: string
     description?: string
     customId?: string

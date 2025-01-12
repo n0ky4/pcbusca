@@ -13,8 +13,14 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
         setSettingsToStorage(settings)
     }, [])
 
-    const savedSearch = useMemo(() => createSavedSearchHandler(settings, setSettings), [settings])
-    const history = useMemo(() => createHistoryHandler(settings, setSettings), [settings])
+    const savedSearch = useMemo(
+        () => createSavedSearchHandler(settings, setSettings),
+        [settings, setSettings]
+    )
+    const history = useMemo(
+        () => createHistoryHandler(settings, setSettings),
+        [settings, setSettings]
+    )
 
     useEffect(() => {
         _setSettings(getSettingsFromStorage())
