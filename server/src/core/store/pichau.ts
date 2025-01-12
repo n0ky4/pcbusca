@@ -373,7 +373,7 @@ export async function pichau(query: string, settings?: PaginationInput) {
     }
 
     log.info('[pichau] fetching url')
-    await pg.goto(url)
+    await pg.goto(url, { waitUntil: 'domcontentloaded' })
 
     log.info('[pichau] evaluating page')
     let preElement = await pg.$('pre')
@@ -382,6 +382,10 @@ export async function pichau(query: string, settings?: PaginationInput) {
     if (!rawJson) {
         await close()
         log.error('[pichau] rawJson is null')
+
+        const pageContent = await pg.content()
+        log.error('[pichau] pageContent', { pageContent })
+
         throw new PichauError('UNEXPECTED_RESPONSE')
     }
 
