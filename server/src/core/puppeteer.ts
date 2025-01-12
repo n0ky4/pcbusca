@@ -18,15 +18,21 @@ const getPoolSettings = () => {
     }
 }
 
+
 export const browserPool = genericPool.createPool(
     {
         create: async () => {
             log.info('creating new browser', { poolSize: browserPool.size })
-            const browser = await puppeteer.launch({
-                headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            })
-            return browser
+            try {
+                const browser = await puppeteer.launch({
+                    headless: true,
+                    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+                })
+                return browser
+            } catch (err) {
+                log.error('error creating browser', err)
+                process.exit(1)
+            }
         },
         destroy: async (browser) => {
             log.info('destroying browser', { poolSize: browserPool.size })
@@ -42,3 +48,4 @@ export async function finalize() {
     await browserPool.drain()
     await browserPool.clear()
 }
+

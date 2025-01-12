@@ -72,7 +72,7 @@ async function main() {
 
     log.info('starting server on port', PORT)
 
-    app.listen({ port: PORT })
+    app.listen({ port: PORT, host: '0.0.0.0' })
         .then(() => {
             startedAt = new Date()
             log.info(`server listening on port http://localhost:${PORT}`)
