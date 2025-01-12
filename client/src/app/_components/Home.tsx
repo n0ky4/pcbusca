@@ -130,6 +130,7 @@ export function Home({ initialSearch }: HomeProps) {
         setQuery('')
         setSearched(false)
         setResults([])
+        window.history.pushState({}, '', window.location.pathname)
     }
 
     const openSettings = () => setShowSettingsModal(true)
