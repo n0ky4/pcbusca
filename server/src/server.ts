@@ -32,9 +32,9 @@ async function main() {
     log.info('setting up cron jobs')
     setupQuotaCron()
 
-    log.info('setting up validators', validatorCompiler)
+    log.info('setting up validators')
     await app.setValidatorCompiler(validatorCompiler)
-    log.info('setting up serializers', serializerCompiler)
+    log.info('setting up serializers')
     await app.setSerializerCompiler(serializerCompiler)
 
     log.info('setting up rate limit')
