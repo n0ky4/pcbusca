@@ -13,7 +13,7 @@ import { formatDate, getStoreLabel } from '@/lib/common'
 import { LABELS } from '@/lib/labels'
 import { log } from '@/lib/log'
 import { StreamError, streamSearch } from '@/lib/req'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { MIN_SEARCH_LENGTH, SearchResult } from 'shared'
 
 const Reais = new Intl.NumberFormat('pt-BR', {
@@ -21,22 +21,28 @@ const Reais = new Intl.NumberFormat('pt-BR', {
     currency: 'BRL',
 })
 
-export function Home() {
+interface HomeProps {
+    initialSearch: string | undefined
+}
+
+export function Home({ initialSearch }: HomeProps) {
     const [query, setQuery] = useState('')
     const [searched, setSearched] = useState(false)
-    const [result, setResults] = useState<SearchResult[]>([])
     const [loading, setLoading] = useState(false)
+    const [result, setResults] = useState<SearchResult[]>([])
 
+    const { settings, history } = useSettings()
+
+    // modal states
     const [showSettingsModal, setShowSettingsModal] = useState(false)
     const [showHistoryModal, setShowHistoryModal] = useState(false)
     const [showAboutModal, setShowAboutModal] = useState(false)
-
-    const { settings, history } = useSettings()
 
     const onSearch = async (_query: string, changeInput?: boolean) => {
         if (!_query || loading) return
         if (changeInput) setQuery(_query)
 
+        // check query length
         if (_query.length < MIN_SEARCH_LENGTH) {
             t.error('Essa pesquisa é muito curta!')
             return
@@ -45,6 +51,12 @@ export function Home() {
             return
         }
 
+        // change "q" query param
+        const url = new URL(window.location.href)
+        url.searchParams.set('q', _query)
+        window.history.pushState({}, '', url.toString())
+
+        // instantiate search
         const search = streamSearch(_query, settings.stores)
 
         log.info(`searching for "${_query}" in ${settings.stores.join(', ')}`)
@@ -52,6 +64,7 @@ export function Home() {
         let startedAt: null | Date = null
         let endedAt: null | Date = null
 
+        // on { msg: "start" }
         search.on('start', () => {
             setResults([])
             setLoading(true)
@@ -62,6 +75,7 @@ export function Home() {
             log.info('search started at', formatDate(startedAt))
         })
 
+        // on { store, data: [...] }
         search.on('data', (data: SearchResult) => {
             if (!data.data?.products) {
                 log.warn(`no products found in ${getStoreLabel(data.store)}`)
@@ -76,6 +90,7 @@ export function Home() {
             setResults((prev) => [...prev, data])
         })
 
+        // on { msg: "error" } (store or rate/quota errors)
         search.on('error', (error: StreamError) => {
             if (error.type === 'store') {
                 const { store } = error
@@ -97,6 +112,7 @@ export function Home() {
             }
         })
 
+        // on { msg: "end" }
         search.on('end', () => {
             setLoading(false)
 
@@ -105,6 +121,7 @@ export function Home() {
             log.info('search took', endedAt.getTime() - startedAt!.getTime(), 'ms')
         })
 
+        // start search
         search.start()
     }
 
@@ -143,6 +160,11 @@ export function Home() {
     )
 
     const empty = useMemo(() => searched && !loading && !result.length, [searched, loading, result])
+
+    // start search if initialSearch is provided (from query param)
+    useEffect(() => {
+        if (initialSearch) onSearch(initialSearch, true)
+    }, [initialSearch])
 
     return (
         <>
