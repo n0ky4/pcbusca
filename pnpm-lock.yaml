@@ -41,9 +41,15 @@ importers:
       shared:
         specifier: workspace:*
         version: link:../shared
+      sharp:
+        specifier: ^0.33.5
+        version: 0.33.5
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.0
+      tldts:
+        specifier: ^6.1.71
+        version: 6.1.71
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -2877,6 +2883,10 @@ packages:
   tldts-experimental@6.1.71:
     resolution: {integrity: sha512-78lfP/3fRJ3HoCT5JSLOLj5ElHiWCAyglYNzjkFqBO7ykLZYst2u2jM1igSHWV0J2GFfOplApeDsfTF+XACrlA==}
 
+  tldts@6.1.71:
+    resolution: {integrity: sha512-LQIHmHnuzfZgZWAf2HzL83TIIrD8NhhI0DVxqo9/FdOd4ilec+NTNZOlDZf7EwrTNoutccbsHjvWHYXLAtvxjw==}
+    hasBin: true
+
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
@@ -4045,13 +4055,11 @@ snapshots:
     dependencies:
       color-name: 1.1.4
       simple-swizzle: 0.2.2
-    optional: true
 
   color@4.2.3:
     dependencies:
       color-convert: 2.0.1
       color-string: 1.9.1
-    optional: true
 
   combined-stream@1.0.8:
     dependencies:
@@ -4164,8 +4172,7 @@ snapshots:
 
   depd@2.0.0: {}
 
-  detect-libc@2.0.3:
-    optional: true
+  detect-libc@2.0.3: {}
 
   devtools-protocol@0.0.1367902: {}
 
@@ -4942,8 +4949,7 @@ snapshots:
 
   is-arrayish@0.2.1: {}
 
-  is-arrayish@0.3.2:
-    optional: true
+  is-arrayish@0.3.2: {}
 
   is-async-function@2.1.0:
     dependencies:
@@ -5843,7 +5849,6 @@ snapshots:
       '@img/sharp-wasm32': 0.33.5
       '@img/sharp-win32-ia32': 0.33.5
       '@img/sharp-win32-x64': 0.33.5
-    optional: true
 
   shebang-command@2.0.0:
     dependencies:
@@ -5886,7 +5891,6 @@ snapshots:
   simple-swizzle@0.2.2:
     dependencies:
       is-arrayish: 0.3.2
-    optional: true
 
   slash@3.0.0: {}
 
@@ -6105,6 +6109,10 @@ snapshots:
       tldts-core: 5.7.112
 
   tldts-experimental@6.1.71:
+    dependencies:
+      tldts-core: 6.1.71
+
+  tldts@6.1.71:
     dependencies:
       tldts-core: 6.1.71
 
