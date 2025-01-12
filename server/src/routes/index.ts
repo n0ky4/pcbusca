@@ -1,7 +1,9 @@
+import { buildKey, cacheHandler } from '@/core/cache'
 import { quota } from '@/core/quota'
 import { searchAll, searchEmitter } from '@/core/search.js'
 import { streamSimulator } from '@/example'
 import { log } from '@/log'
+import { internalServerErrorSchema, quotaExceededSchema } from '@/types'
 import type { FastifyTypedInstance } from '@/types/fastify.types'
 import {
     MAX_SEARCH_LENGTH,
@@ -12,10 +14,7 @@ import {
 } from 'shared'
 import { z } from 'zod'
 
-const quotaExceededSchema = z.object({
-    msg: z.literal('error'),
-    code: z.literal('QUOTA_EXCEEDED'),
-})
+export const SEPARATOR = '␀'
 
 export async function routes(app: FastifyTypedInstance) {
     app.post(
@@ -26,29 +25,41 @@ export async function routes(app: FastifyTypedInstance) {
                 description: 'Search for products',
                 body: z.object({
                     query: z.string().max(100).min(3),
-                    page: z.number().int().min(1).default(1),
+                    // page: z.number().int().min(1).default(1),
                     stores: z.array(storeSchema).default(['kabum', 'pichau', 'terabyte']),
                 }),
                 response: {
                     200: searchResultSchema.array(),
                     403: quotaExceededSchema,
+                    500: internalServerErrorSchema,
                 },
             },
         },
         async (req, reply) => {
+            const cacheKey = buildKey(req.body)
+
+            const cached = cacheHandler.normal(cacheKey)
+            if (cached) return cached
+
             if (!quota.check(req.ip)) {
                 reply.code(403).send({ msg: 'error', code: 'QUOTA_EXCEEDED' })
                 return
             }
 
             const {
-                body: { query, page, stores },
+                body: { query, stores },
             } = req
 
             quota.increment(req.ip)
-            const results = await searchAll(query, { page, stores })
 
-            return results
+            try {
+                const results = await searchAll(query, { stores })
+                cacheHandler.set(cacheKey, results)
+                return results
+            } catch (err) {
+                log.error('search error', err)
+                reply.code(500).send({ msg: 'error', code: 'INTERNAL_SERVER_ERROR' })
+            }
         }
     )
 
@@ -80,27 +91,35 @@ export async function routes(app: FastifyTypedInstance) {
             },
         },
         async (req, reply) => {
-            if (!quota.check(req.ip)) {
-                reply.code(403).send({ msg: 'error', code: 'QUOTA_EXCEEDED' })
-                return
-            }
-
             // content type: text/event-stream
             reply.raw.setHeader('Content-Type', 'text/event-stream')
             reply.raw.setHeader('Cache-Control', 'no-cache')
             reply.raw.setHeader('Connection', 'keep-alive')
-
             // idk why cors isn't working, so i'm setting it manually
             reply.raw.setHeader('Access-Control-Allow-Origin', '*')
 
-            const separator = '␀'
+            const cacheKey = buildKey(req.body)
+            const cached = cacheHandler.stream(cacheKey, reply)
+            if (cached) return
+
+            if (!quota.check(req.ip)) {
+                reply.raw.write(
+                    JSON.stringify({ msg: 'error', code: 'QUOTA_EXCEEDED' }) + SEPARATOR
+                )
+                reply.raw.end()
+                return
+            }
+
             const emitter = req.body.test
                 ? streamSimulator()
                 : searchEmitter(req.body.query, { stores: req.body.stores })
 
             const send = (data: object) => {
-                reply.raw.write(JSON.stringify(data) + separator)
+                reply.raw.write(JSON.stringify(data) + SEPARATOR)
             }
+
+            let hasErrors = false
+            const finalRes: SearchResult[] = []
 
             emitter.on('start', () => {
                 send({ msg: 'start' })
@@ -109,18 +128,23 @@ export async function routes(app: FastifyTypedInstance) {
 
             emitter.on('data', (data: SearchResult) => {
                 send(data)
+                finalRes.push(data)
             })
 
             emitter.on('end', () => {
                 log.info('stream end')
 
                 send({ msg: 'end' })
+
+                if (!hasErrors) cacheHandler.set(cacheKey, finalRes)
+
                 reply.raw.end()
             })
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             emitter.on('error', (err: any) => {
                 log.warn('erro recebido no stream', err)
+                hasErrors = true
 
                 if (err?.store) send({ msg: 'error', store: err?.store })
             })

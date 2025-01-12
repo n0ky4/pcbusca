@@ -22,3 +22,14 @@ export const settingsSchema = z.object({
     query: z.string().min(3),
     page: z.number().int().default(1),
 })
+
+// error schemas
+export const quotaExceededSchema = z.object({
+    msg: z.literal('error'),
+    code: z.literal('QUOTA_EXCEEDED'),
+})
+
+export const internalServerErrorSchema = z.object({
+    msg: z.literal('error'),
+    code: z.literal('INTERNAL_SERVER_ERROR'),
+})
