@@ -64,25 +64,11 @@ export function AboutModal({ show, onClose }: AboutModalProps) {
         let yDir = 1
 
         const frame = () => {
-            // x += vel * xDir
-            // y += vel * yDir
-
             x += vel * xDir
             y += vel * yDir
 
-            if (x >= maxX) {
-                xDir = -1
-            }
-            if (x <= 0) {
-                xDir = 1
-            }
-
-            if (y >= maxY) {
-                yDir = -1
-            }
-            if (y <= 0) {
-                yDir = 1
-            }
+            if (x >= maxX || x <= 0) xDir *= -1
+            if (y >= maxY || y <= 0) yDir *= -1
 
             updatePos()
             if (move) requestAnimationFrame(frame)
