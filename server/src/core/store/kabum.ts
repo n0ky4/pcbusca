@@ -1,6 +1,6 @@
 import { getRandomUA, KABUM_BASE_URL } from '@/core/const.js'
 import { KabumError } from '@/errors.js'
-import { log, t, te } from '@/log.js'
+import { log } from '@/log.js'
 import { PaginationInput, paginationSettingsSchema } from '@/types/index.js'
 import { KabumResponse } from '@/types/kabum.types'
 import { Item, Meta, Response } from 'shared'
@@ -55,16 +55,13 @@ const getInstallmentPrice = (maxInstallment: string): number | undefined => {
  * ```
  */
 export async function kabum(query: string, settings?: PaginationInput): Promise<Response> {
-    t('[kabum] total')
-
     const cfg = paginationSettingsSchema.parse(settings || {})
-    log.info('searching kabum', { query, settings: cfg })
+    log.info(`[kabum] searching for "${query}"`, cfg)
 
-    t('[kabum] request')
     const encodedQuery = encodeURIComponent(query)
     const url = `${KABUM_BASE_URL}/catalog/v2/products?query=${encodedQuery}&page_size=${cfg.pageLimit}&page_number=${cfg.page}`
 
-    log.info('requesting kabum:', url)
+    log.info(`[kabum] url: ${url}`)
     const res = await fetch(url, {
         headers: {
             Accept: 'application/json, text/plain, */*',
@@ -75,15 +72,25 @@ export async function kabum(query: string, settings?: PaginationInput): Promise<
         },
     })
 
-    log.info('kabum response:', res.status)
-
-    if (res.status === 404) throw new KabumError('NOT_FOUND')
-    if (!res.ok) throw new KabumError('FETCH_FAILED')
+    log.info(`[kabum] status: ${res.status}`)
+    if (res.status === 404) {
+        log.warn('[kabum] returning NOT_FOUND')
+        throw new KabumError('NOT_FOUND')
+    }
+    if (!res.ok) {
+        const data = await res.text()
+        log.error(
+            `[kabum] returning FETCH_FAILED, status: ${res.status}, request: ${url}, data: ${data}`
+        )
+        throw new KabumError('FETCH_FAILED')
+    }
 
     const rawData: unknown = await res.json()
-    te('[kabum] request')
 
-    if (!isDataValid(rawData)) throw new KabumError('UNEXPECTED_RESPONSE')
+    if (!isDataValid(rawData)) {
+        log.error('[kabum] returning UNEXPECTED_RESPONSE, data:', rawData)
+        throw new KabumError('UNEXPECTED_RESPONSE')
+    }
 
     const { data, meta: ogMeta } = rawData as KabumResponse
 
@@ -96,9 +103,8 @@ export async function kabum(query: string, settings?: PaginationInput): Promise<
         pageLimit: ogMeta.page.size,
     }
 
-    log.info('kabum meta:', meta)
+    log.info('[kabum] meta', meta)
 
-    t('[kabum] products-map')
     const products = data
         .filter((x) => x?.attributes?.available === true)
         .map((x) => {
@@ -144,8 +150,7 @@ export async function kabum(query: string, settings?: PaginationInput): Promise<
             return result
         })
 
-    te('[kabum] products-map')
-    te('[kabum] total')
+    log.info(`[kabum] returning ${products.length} products`)
 
     return {
         meta,

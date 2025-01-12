@@ -1,7 +1,6 @@
 import { buildKey, cacheHandler } from '@/core/cache'
 import { quota } from '@/core/quota'
 import { searchAll, searchEmitter } from '@/core/search.js'
-import { streamSimulator } from '@/example'
 import { log } from '@/log'
 import type { FastifyTypedInstance } from '@/types/fastify.types'
 import {
@@ -48,10 +47,14 @@ export async function routes(app: FastifyTypedInstance) {
             const cacheKey = buildKey(req.body)
 
             const cached = cacheHandler.normal(cacheKey)
-            if (cached) return cached
+            if (cached) {
+                log.info(`[search] cache hit for ${cacheKey}`)
+                return cached
+            }
 
             if (!quota.check(req.ip)) {
                 reply.code(403).send({ msg: 'error', code: 'QUOTA_EXCEEDED' })
+                log.info(`[search] quota exceeded for ${req.ip}`)
                 return
             }
 
@@ -64,6 +67,7 @@ export async function routes(app: FastifyTypedInstance) {
             try {
                 const results = await searchAll(query, { stores })
                 cacheHandler.set(cacheKey, results)
+                log.info(`[search] cache set for ${cacheKey}`)
                 return results
             } catch (err) {
                 log.error('search error', err)
@@ -79,7 +83,6 @@ export async function routes(app: FastifyTypedInstance) {
                 tags: ['products'],
                 description: 'Stream search for products',
                 body: z.object({
-                    test: z.boolean().default(false),
                     query: z.string().max(MAX_SEARCH_LENGTH).min(MIN_SEARCH_LENGTH),
                     stores: z.array(storeSchema).min(1).default(['kabum', 'pichau', 'terabyte']),
                 }),
@@ -109,23 +112,23 @@ export async function routes(app: FastifyTypedInstance) {
 
             const cacheKey = buildKey(req.body)
             const cached = cacheHandler.stream(cacheKey, reply)
-            if (cached) return
 
-            if (!quota.check(req.ip)) {
-                reply.raw.write(
-                    JSON.stringify({ msg: 'error', code: 'QUOTA_EXCEEDED' }) + SEPARATOR
-                )
-                reply.raw.end()
+            if (cached) {
+                log.info(`[stream-search] cache hit for ${cacheKey}`)
                 return
             }
 
-            const emitter = req.body.test
-                ? streamSimulator()
-                : searchEmitter(req.body.query, { stores: req.body.stores })
+            const send = (data: object) => reply.raw.write(JSON.stringify(data) + SEPARATOR)
 
-            const send = (data: object) => {
-                reply.raw.write(JSON.stringify(data) + SEPARATOR)
+            if (!quota.check(req.ip)) {
+                send({ msg: 'error', code: 'QUOTA_EXCEEDED' })
+                reply.raw.end()
+
+                log.info(`[stream-search] quota exceeded for ${req.ip}`)
+                return
             }
+
+            const emitter = searchEmitter(req.body.query, { stores: req.body.stores })
 
             let hasErrors = false
             const finalRes: SearchResult[] = []
@@ -141,20 +144,22 @@ export async function routes(app: FastifyTypedInstance) {
             })
 
             emitter.on('end', () => {
-                log.info('stream end')
-
                 send({ msg: 'end' })
 
-                if (!hasErrors) cacheHandler.set(cacheKey, finalRes)
+                if (!hasErrors) {
+                    cacheHandler.set(cacheKey, finalRes)
+                    log.info(`[stream-search] cache set for ${cacheKey}`)
+                } else {
+                    log.warn(`[stream-search] not caching ${cacheKey} due to errors`)
+                }
 
                 reply.raw.end()
             })
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             emitter.on('error', (err: any) => {
-                log.warn('erro recebido no stream', err)
+                log.error(`[stream-search] error for ${cacheKey}`, err)
                 hasErrors = true
-
                 if (err?.store) send({ msg: 'error', store: err?.store })
             })
 

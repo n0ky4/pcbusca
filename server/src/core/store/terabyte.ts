@@ -1,6 +1,6 @@
 import { browserPool } from '@/core/puppeteer.js'
 import { TerabyteError } from '@/errors.js'
-import { log, t, te } from '@/log.js'
+import { log } from '@/log.js'
 import * as cheerio from 'cheerio'
 import { Item, Meta, Response } from 'shared'
 import { DEFAULT_PAGE_LIMIT } from './../const'
@@ -55,31 +55,23 @@ export async function terabyte(query: string, page?: number): Promise<Response> 
     if (page && page < 1) throw new TerabyteError('INVALID_PAGE')
     const realPage = page || 1
 
-    t('[terabyte] total')
+    log.info(`[terabyte] searching for "${query}"`, { page: realPage })
 
-    log.info('searching terabyte', { query, page: realPage })
+    log.info('[terabyte] opening browser')
 
-    t('[terabyte] open-browser')
     const browser = await browserPool.acquire()
     const pg = await browser.newPage()
-    te('[terabyte] open-browser')
 
     const close = async () => {
-        t('[terabyte] close-browser')
+        log.info('[terabyte] closing browser')
         await pg.close()
         await browserPool.release(browser)
-        te('[terabyte] close-browser')
     }
 
-    t('[terabyte] goto')
-
-    log.info('opening terabyte')
+    log.info('[terabyte] going to terabyte page')
     await pg.goto('view-source:https://www.terabyteshop.com.br/site/formas-de-pagamento-aceitas')
 
-    te('[terabyte] goto')
-
-    t('[terabyte] request')
-    log.info('making terabyte request')
+    log.info('[terabyte] making request')
 
     const rawData = await pg.evaluate(async (reqData) => {
         const req = await fetch(reqData.url, {
@@ -91,23 +83,22 @@ export async function terabyte(query: string, page?: number): Promise<Response> 
         return data
     }, requestMaker(query, realPage))
 
-    te('[terabyte] request')
-
     if (!rawData || !rawData?.more) {
         await close()
+        log.error('[terabyte] returning UNEXPECTED_RESPONSE, data:', rawData)
         throw new TerabyteError('UNEXPECTED_RESPONSE')
     }
     await close()
 
     const data = rawData.more
-    if (data.includes('Nenhum produto encontrado.')) throw new TerabyteError('NOT_FOUND')
+    if (data.includes('Nenhum produto encontrado.')) {
+        log.warn('[terabyte] returning NOT_FOUND')
+        throw new TerabyteError('NOT_FOUND')
+    }
 
-    t('[terabyte] html-parse')
     log.info('parsing terabyte html data')
     const $ = cheerio.load(data)
-    te('[terabyte] html-parse')
 
-    t('[terabyte] products-map')
     const products = $('.product-item')
         .map((_, el) => {
             const $el = $(el)
@@ -165,9 +156,10 @@ export async function terabyte(query: string, page?: number): Promise<Response> 
         .get()
         .filter((x) => x !== null)
 
-    te('[terabyte] products-map')
-
-    if (products.length === 0) throw new TerabyteError('NOT_FOUND')
+    if (products.length === 0) {
+        log.warn('[terabyte] returning NOT_FOUND due to empty products')
+        throw new TerabyteError('NOT_FOUND')
+    }
 
     const meta: Meta = {
         store: 'terabyte',
@@ -177,9 +169,7 @@ export async function terabyte(query: string, page?: number): Promise<Response> 
         pageLimit: null,
         items: products.length,
     }
-    log.info('terabyte meta:', meta)
-
-    te('[terabyte] total')
+    log.info('[terabyte] meta', meta)
 
     return {
         meta,

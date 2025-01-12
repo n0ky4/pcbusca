@@ -1,7 +1,7 @@
 import { PICHAU_BASE_URL } from '@/core/const.js'
 import { browserPool } from '@/core/puppeteer.js'
 import { PichauError } from '@/errors.js'
-import { log, t, te } from '@/log.js'
+import { log } from '@/log.js'
 import { PaginationInput, paginationSettingsSchema } from '@/types/index.js'
 import { PichauItem, PichauResponse } from '@/types/pichau.types'
 import { Item, Meta } from 'shared'
@@ -342,12 +342,9 @@ const isDataValid = (checkData: unknown): checkData is PichauResponse => {
  * ```
  */
 export async function pichau(query: string, settings?: PaginationInput) {
-    t('[pichau]')
-
     const { page, pageLimit } = paginationSettingsSchema.parse(settings || {})
-    log.info('searching pichau:', query)
+    log.info(`[pichau] searching for "${query}"`, { page, pageLimit })
 
-    t('[pichau] format-params')
     const searchParams = formatParams({
         query: PICHAU_PAYLOAD.replaceAll('{{QUERY}}', query),
         operationName: 'category',
@@ -364,53 +361,48 @@ export async function pichau(query: string, settings?: PaginationInput) {
 
     const url = PICHAU_BASE_URL + '?' + searchParams
 
-    te('[pichau] format-params')
-
-    t('[pichau] open-browser')
-
-    log.info('opening browser for pichau')
+    log.info('[pichau] opening browser')
     const browser = await browserPool.acquire()
     const pg = await browser.newPage()
 
-    te('[pichau] open-browser')
-
     const close = async () => {
-        t('[pichau] close-browser')
+        log.info('[pichau] closing browser')
+
         await pg.close()
         await browserPool.release(browser)
-        te('[pichau] close-browser')
     }
 
-    t('[pichau] goto')
-    log.info('fetching pichau')
+    log.info('[pichau] fetching url')
     await pg.goto(url)
-    te('[pichau] goto')
 
-    t('[pichau] evaluate')
+    log.info('[pichau] evaluating page')
     let preElement = await pg.$('pre')
     let rawJson = await pg.evaluate((el) => el?.textContent, preElement)
-    te('[pichau] evaluate')
 
     if (!rawJson) {
         await close()
+        log.error('[pichau] rawJson is null')
         throw new PichauError('UNEXPECTED_RESPONSE')
     }
 
     await close()
 
-    t('[pichau] json parse')
     log.info('parsing pichau response')
 
     const parsedData: unknown = JSON.parse(rawJson)
-    if (!isDataValid(parsedData)) throw new PichauError('UNEXPECTED_RESPONSE')
+    if (!isDataValid(parsedData)) {
+        log.error('[pichau] returning UNEXPECTED_RESPONSE', { parsedData })
+        throw new PichauError('UNEXPECTED_RESPONSE')
+    }
 
     const { data } = parsedData as PichauResponse
     preElement = null
     rawJson = null
 
-    te('[pichau] json parse')
-
-    if (!data?.products?.items?.length) throw new PichauError('NOT_FOUND')
+    if (!data?.products?.items?.length) {
+        log.warn('[pichau] returning NOT_FOUND')
+        throw new PichauError('NOT_FOUND')
+    }
 
     const meta: Meta = {
         store: 'pichau',
@@ -420,13 +412,9 @@ export async function pichau(query: string, settings?: PaginationInput) {
         pages: data.products.page_info.total_pages,
         pageLimit: data.products.items.length,
     }
-    log.info('pichau meta:', meta)
+    log.info('[pichau] meta', meta)
 
-    t('[pichau] products-map')
     const products = formatProducts(data.products.items)
-    te('[pichau] products-map')
-
-    te('[pichau]')
 
     return {
         meta,
