@@ -1,6 +1,7 @@
 'use client'
 import { GridItem } from '@/components/GridItem'
 import { Header } from '@/components/Header'
+import { AboutModal } from '@/components/modal/AboutModal'
 import { HistoryModal } from '@/components/modal/HistoryModal'
 import { SettingsModal } from '@/components/modal/SettingsModal'
 import { NotFound } from '@/components/NotFound'
@@ -28,6 +29,7 @@ export function Home() {
 
     const [showSettingsModal, setShowSettingsModal] = useState(false)
     const [showHistoryModal, setShowHistoryModal] = useState(false)
+    const [showAboutModal, setShowAboutModal] = useState(false)
 
     const { settings, history } = useSettings()
 
@@ -115,6 +117,7 @@ export function Home() {
 
     const openSettings = () => setShowSettingsModal(true)
     const openHistory = () => setShowHistoryModal(true)
+    const openAbout = () => setShowAboutModal(true)
 
     const cheapestProducts = useMemo(() => {
         return result
@@ -143,13 +146,18 @@ export function Home() {
 
     return (
         <>
+            <AboutModal show={showAboutModal} onClose={() => setShowAboutModal(false)} />
             <HistoryModal
                 show={showHistoryModal}
                 onClose={() => setShowHistoryModal(false)}
                 onSearch={onSearch}
             />
             <SettingsModal show={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
-            <TopBar onSettingsClick={openSettings} onHistoryClick={openHistory} />
+            <TopBar
+                onSettingsClick={openSettings}
+                onHistoryClick={openHistory}
+                onAboutClick={openAbout}
+            />
             <Header
                 onSearch={onSearch}
                 onInputChange={(_query) => setQuery(_query)}

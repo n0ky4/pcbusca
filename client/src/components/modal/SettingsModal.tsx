@@ -8,12 +8,9 @@ import { SettingsInput } from '../SettingsInput'
 import { t } from '../Toaster'
 import { Button } from './../button/Button'
 import { ClearHistoryButton } from './../button/ClearHistoryButton'
-import { Modal } from './Modal'
+import { BaseModalProps, Modal } from './Modal'
 
-interface SettingsModalProps {
-    show: boolean
-    onClose: () => void
-}
+interface SettingsModalProps extends BaseModalProps {}
 
 interface SettingsItemProps extends PropsWithChildren {
     title: string

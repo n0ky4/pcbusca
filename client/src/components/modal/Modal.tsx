@@ -4,14 +4,18 @@ import type { PropsWithChildren } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { RoundButton } from './../button/RoundButton'
 
-interface ModalProps extends PropsWithChildren {
+export interface BaseModalProps {
     show: boolean
     onClose: () => void
-    title: string
-    description?: string
 }
 
-export function Modal({ show, onClose, children, title, description }: ModalProps) {
+interface ModalProps extends BaseModalProps, PropsWithChildren<{}> {
+    title: string
+    description?: string
+    customId?: string
+}
+
+export function Modal({ show, onClose, children, title, description, customId }: ModalProps) {
     return (
         <Dialog open={show} onClose={onClose} className='relative z-50'>
             <DialogBackdrop
@@ -33,6 +37,7 @@ export function Modal({ show, onClose, children, title, description }: ModalProp
                         'flex flex-col gap-4',
                         'shadow-lg'
                     )}
+                    id={customId}
                 >
                     <div>
                         <div className='flex items-center w-full justify-between'>

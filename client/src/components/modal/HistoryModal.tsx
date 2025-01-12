@@ -1,11 +1,9 @@
 import { useSettings } from '@/contexts/settings/SettingsContext'
 import { NotFound } from '../NotFound'
 import { ClearHistoryButton } from './../button/ClearHistoryButton'
-import { Modal } from './Modal'
+import { BaseModalProps, Modal } from './Modal'
 
-interface HistoryModalProps {
-    show: boolean
-    onClose: () => void
+interface HistoryModalProps extends BaseModalProps {
     onSearch: (query: string, changeInput?: boolean) => void
 }
 
