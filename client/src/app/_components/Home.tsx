@@ -166,7 +166,7 @@ export function Home() {
                         {/* menores preços  */}
                         {cheapestProducts.length > 0 && (
                             <div className='flex flex-col gap-4'>
-                                <h2 className='text-2xl font-bold'>Menores preços</h2>
+                                <h2 className='text-xl md:text-2xl font-bold'>Menores preços</h2>
                                 <ProductsRanking products={cheapestProducts} Reais={Reais} />
                             </div>
                         )}
@@ -176,7 +176,7 @@ export function Home() {
                             <div className='flex flex-col w-full gap-8'>
                                 {sorted.map((result) => (
                                     <div key={result.store} className='flex flex-col gap-4'>
-                                        <h2 className='text-2xl font-bold'>
+                                        <h2 className='text-xl md:text-2xl font-bold'>
                                             {LABELS[result.store]}
                                         </h2>
 

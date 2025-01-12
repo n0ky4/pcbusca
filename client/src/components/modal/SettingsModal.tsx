@@ -2,6 +2,7 @@ import { useSettings } from '@/contexts/settings/SettingsContext'
 import { getStoreLabel } from '@/lib/common'
 import { PropsWithChildren, useMemo, useState } from 'react'
 import { ALL_STORES, Store, storeSchema } from 'shared'
+import { twMerge } from 'tailwind-merge'
 import { Checkbox } from '../Checkbox'
 import { SettingsInput } from '../SettingsInput'
 import { t } from '../Toaster'
@@ -24,7 +25,9 @@ function SettingsItem({ title, description, children }: SettingsItemProps) {
         <div className='flex flex-col gap-2'>
             <div>
                 <h3 className='text-lg font-bold'>{title}</h3>
-                {description && <p className='text-slate-500'>{description}</p>}
+                {description && (
+                    <p className='text-slate-500 md:text-base text-sm'>{description}</p>
+                )}
             </div>
             {children}
         </div>
@@ -95,7 +98,9 @@ export function SettingsModal({ show, onClose }: SettingsModalProps) {
                     </div>
                 )}
                 <form
-                    className='w-full flex items-center gap-2'
+                    className={twMerge(
+                        'w-full flex items-center gap-2 sm:justify-normal justify-center sm:flex-row flex-col'
+                    )}
                     onSubmit={(e) => {
                         e.preventDefault()
                         onAdd()
@@ -109,7 +114,7 @@ export function SettingsModal({ show, onClose }: SettingsModalProps) {
                             setInput(e.target.value)
                         }
                     />
-                    <Button onClick={onAdd} disabled={!canAdd}>
+                    <Button onClick={onAdd} disabled={!canAdd} className='sm:w-fit w-full'>
                         Adicionar
                     </Button>
                 </form>

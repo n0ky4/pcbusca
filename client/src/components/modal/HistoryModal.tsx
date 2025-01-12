@@ -33,37 +33,40 @@ export function HistoryModal({ show, onClose, onSearch }: HistoryModalProps) {
                 <NotFound customMessage='Nenhum histórico encontrado.' />
             ) : (
                 <>
-                    <div className='text-slate-500 flex w-full items-center justify-between'>
-                        <span>
+                    <div className='text-slate-500 flex w-full items-center sm:justify-between flex-wrap gap-2 justify-center'>
+                        <span className='sm:text-base text-sm'>
                             Você tem {history.length} ite{history.length > 1 ? 'ns' : 'm'} no
                             histórico.
                         </span>
                         <ClearHistoryButton />
                     </div>
                     <div className='max-h-80 overflow-auto'>
-                        {reversedHistory.map(({ id, entry }) => (
-                            <div key={id} className='pr-1'>
-                                <div className='text-sm flex flex-wrap items-center justify-between group hover:bg-slate-800 px-1 rounded'>
-                                    <button
-                                        className='text-slate-400 group-hover:text-white hover:underline w-fit text-left'
-                                        onClick={() => handleClickLink(entry)}
-                                    >
-                                        {entry}
-                                    </button>
-                                    <div className='flex items-center gap-4'>
-                                        <span className='text-slate-500 group-hover:text-slate-400'>
-                                            {new Date(parseInt(id)).toLocaleString()}
-                                        </span>
+                        {reversedHistory.map(({ id, entry }) => {
+                            const date = new Date(parseInt(id)).toLocaleString()
+                            return (
+                                <div key={id} className='pr-1'>
+                                    <div className='text-sm flex flex-wrap items-center justify-between group hover:bg-slate-800 px-1 rounded'>
                                         <button
-                                            className='hover:underline'
-                                            onClick={() => historyHandler.remove(id)}
+                                            className='text-slate-400 group-hover:text-white hover:underline w-fit text-left flex items-center gap-2 flex-wrap'
+                                            onClick={() => handleClickLink(entry)}
                                         >
-                                            Remover
+                                            {entry}
                                         </button>
+                                        <div className='flex items-center gap-4'>
+                                            <span className='text-slate-500 group-hover:text-slate-400 hidden sm:block'>
+                                                {date}
+                                            </span>
+                                            <button
+                                                className='hover:underline'
+                                                onClick={() => historyHandler.remove(id)}
+                                            >
+                                                Remover
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </>
             )}

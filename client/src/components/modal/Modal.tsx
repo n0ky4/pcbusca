@@ -28,7 +28,7 @@ export function Modal({ show, onClose, children, title, description }: ModalProp
                     transition
                     className={twMerge(
                         'duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0',
-                        'max-w-screen-sm h-fit w-full p-8 rounded-lg',
+                        'max-w-screen-sm h-fit w-full md:p-8 p-4 rounded-lg',
                         'bg-slate-900 border border-slate-800',
                         'flex flex-col gap-4',
                         'shadow-lg'
@@ -36,7 +36,9 @@ export function Modal({ show, onClose, children, title, description }: ModalProp
                 >
                     <div>
                         <div className='flex items-center w-full justify-between'>
-                            <DialogTitle className='font-bold text-3xl'>{title}</DialogTitle>
+                            <DialogTitle className='font-bold md:text-3xl text-xl'>
+                                {title}
+                            </DialogTitle>
                             <RoundButton
                                 theme='ghost'
                                 onClick={onClose}

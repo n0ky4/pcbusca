@@ -38,13 +38,14 @@ export function Header({
     return (
         <header
             className={twMerge(
-                'w-full flex items-center justify-center py-12',
-                'ease-out duration-500 transition-[height]'
+                'w-full flex items-center justify-center py-12 px-4',
+                'ease-out duration-500 transition-[height]',
+                'md:mt-0 mt-8'
             )}
             style={{ height: searched ? `${headerContentHeight + padding}px` : '70vh' }}
         >
             <div className='text-center max-w-md w-full flex flex-col gap-8' ref={headerContentRef}>
-                <button className='w-fit mx-auto font-bold text-6xl' onClick={onReset}>
+                <button className='w-fit mx-auto font-bold md:text-6xl text-5xl' onClick={onReset}>
                     <h1>pcbusca</h1>
                 </button>
                 <form

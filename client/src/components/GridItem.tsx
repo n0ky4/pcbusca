@@ -1,13 +1,17 @@
 import { cleanTitle, truncate } from '@/lib/format'
 import { ImageBroken } from '@phosphor-icons/react'
-import Image from 'next/image'
 import { useMemo } from 'react'
 import { Item } from 'shared'
+import { twMerge } from 'tailwind-merge'
 
 interface GridItemProps {
     product: Item
     Reais: Intl.NumberFormat
 }
+
+const imageStyle = twMerge(
+    'w-full h-48 rounded-lg group-hover:scale-105 transition-transform ease-out duration-200'
+)
 
 export function GridItem({ product, Reais }: GridItemProps) {
     const title = useMemo(() => truncate(cleanTitle(product.name), 64), [product.name])
@@ -23,16 +27,17 @@ export function GridItem({ product, Reais }: GridItemProps) {
             >
                 <div className='w-full h-48 rounded-lg overflow-hidden'>
                     {product.images?.default ? (
-                        <Image
-                            src={`/proxy?url=${product.images.default}`}
-                            width={512}
-                            height={512}
-                            className='w-full h-48 bg-cover bg-center rounded-lg group-hover:scale-105 transition-transform ease-out duration-200'
-                            alt={`Imagem do produto ${product.name}`}
-                            draggable={false}
+                        <div
+                            style={{ backgroundImage: `url(/proxy?url=${product.images.default})` }}
+                            className={twMerge('bg-cover bg-center', imageStyle)}
                         />
                     ) : (
-                        <div className='w-full h-48 rounded-lg group-hover:scale-105 transition-transform ease-out duration-200 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-slate-200 opacity-75'>
+                        <div
+                            className={twMerge(
+                                'bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-slate-200 opacity-75',
+                                imageStyle
+                            )}
+                        >
                             <ImageBroken size={32} />
                         </div>
                     )}
