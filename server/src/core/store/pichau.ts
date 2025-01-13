@@ -380,11 +380,12 @@ export async function pichau(query: string, settings?: PaginationInput) {
     let rawJson = await pg.evaluate((el) => el?.textContent, preElement)
 
     if (!rawJson) {
-        await close()
         log.error('[pichau] rawJson is null')
 
         const pageContent = await pg.content()
         log.error('[pichau] pageContent', { pageContent })
+
+        await close()
 
         throw new PichauError('UNEXPECTED_RESPONSE')
     }
