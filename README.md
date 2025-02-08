@@ -2,7 +2,11 @@
 
 O pcbusca é um site que procura vários produtos e periféricos de informática nas principais lojas do Brasil-sil-silll!!!
 
-https://github.com/user-attachments/assets/6305cd3a-410f-4a1d-9b1d-cc0b64102a0e
+
+
+https://github.com/user-attachments/assets/2455e42d-bbf5-40a6-b985-b00fe989b814
+
+
 
 ## 📥 Instalação local
 
